@@ -11,5 +11,7 @@ class Member {
     var id: Long? = null
 
     var name: String = ""
+    var username: String = ""
+    var email: String=""
 
 }
