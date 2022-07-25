@@ -13,7 +13,7 @@ class MemberController(
     private val memberService: MemberService,
 ) {
 
-    @PostMapping("/member")
+    @PostMapping("/join")
     fun createMember(memberDto: MemberDto): String {
         val member: Member = Member.fromDto(memberDto)
         member.password = passwordEncoder.encode(member.password)
