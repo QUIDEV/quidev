@@ -44,5 +44,8 @@ class Member(
         return result
     }
 
+    override fun toString(): String {
+        return "Member(id=$id, name='$name', email='$email')"
+    }
 
 }
