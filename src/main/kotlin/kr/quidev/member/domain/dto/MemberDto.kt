@@ -1,4 +1,4 @@
-package kr.quidev.member.domain
+package kr.quidev.member.domain.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

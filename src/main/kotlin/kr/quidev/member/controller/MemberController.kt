@@ -1,7 +1,7 @@
 package kr.quidev.member.controller
 
-import kr.quidev.member.domain.Member
-import kr.quidev.member.domain.MemberDto
+import kr.quidev.member.domain.entity.Member
+import kr.quidev.member.domain.dto.MemberDto
 import kr.quidev.member.service.MemberService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Controller
