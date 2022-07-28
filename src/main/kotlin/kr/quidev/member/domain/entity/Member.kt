@@ -1,5 +1,6 @@
-package kr.quidev.member.domain
+package kr.quidev.member.domain.entity
 
+import kr.quidev.member.domain.dto.MemberDto
 import javax.persistence.*
 
 @Entity
@@ -15,6 +16,7 @@ class Member(
     var password: String = password
     var name: String = name
     var email: String = email
+    var role: String = "user"
 
     companion object {
         fun fromDto(dto: MemberDto): Member {
@@ -44,5 +46,8 @@ class Member(
         return result
     }
 
+    override fun toString(): String {
+        return "Member(id=$id, name='$name', email='$email')"
+    }
 
 }

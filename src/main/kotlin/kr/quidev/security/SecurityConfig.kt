@@ -5,35 +5,17 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache
 import org.springframework.security.web.savedrequest.RequestCache
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
+class SecurityConfig(private val userDetailsService: UserDetailsService) {
     private val log = LoggerFactory.getLogger(javaClass)
-
-    @Bean
-    fun userDetailsService(): InMemoryUserDetailsManager {
-        val user = User.withDefaultPasswordEncoder()
-            .username("user")
-            .password("pass")
-            .roles("USER")
-            .build()
-
-        val admin = User.withDefaultPasswordEncoder()
-            .username("admin")
-            .password("pass")
-            .roles("ADMIN", "USER")
-            .build()
-
-        return InMemoryUserDetailsManager(user, admin)
-    }
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -74,7 +56,7 @@ class SecurityConfig {
             .rememberMeParameter("remember_me")
             .tokenValiditySeconds(60 * 60 * 24) // default : 14 days
             .alwaysRemember(false) // remember me activated only when it's checked
-            .userDetailsService(userDetailsService())
+            .userDetailsService(userDetailsService)
 
         http.sessionManagement()
             .maximumSessions(2)
