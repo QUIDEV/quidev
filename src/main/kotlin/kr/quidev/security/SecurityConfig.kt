@@ -22,6 +22,7 @@ class SecurityConfig(private val userDetailsService: UserDetailsService) {
         http.authorizeRequests()
             .antMatchers("/adm")
             .access("hasRole('ADMIN')")
+            .antMatchers("/css/**").permitAll()
             .antMatchers("/", "/join")
             .permitAll()
             .anyRequest()
@@ -39,6 +40,7 @@ class SecurityConfig(private val userDetailsService: UserDetailsService) {
                 log.info("login succeed. authentication : $authentication")
             }.failureHandler { request, response, exception ->
                 log.info("login failed. exception: ${exception.message}")
+                response.sendRedirect("/login")
             }.permitAll()
 
         http.logout()
