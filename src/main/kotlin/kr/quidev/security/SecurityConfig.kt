@@ -21,7 +21,11 @@ class SecurityConfig(private val userDetailsService: UserDetailsService) {
 
     @Bean
     fun webSecurityCustomizer(): WebSecurityCustomizer {
-        return WebSecurityCustomizer { web -> web.ignoring().antMatchers("/css/**") }
+        return WebSecurityCustomizer {
+                web -> web.ignoring()
+            .antMatchers("/css/**")
+            .antMatchers("/api/**")
+        }
     }
 
     @Bean
@@ -61,7 +65,7 @@ class SecurityConfig(private val userDetailsService: UserDetailsService) {
                 val session = request.session
                 session.invalidate()
             }.logoutSuccessHandler { _, response, authentication ->
-                response.sendRedirect("login")
+                response.sendRedirect("/")
                 log.info("running logout success handler")
             }.deleteCookies("remember-me")
 

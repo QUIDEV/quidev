@@ -5,18 +5,15 @@ import javax.persistence.*
 
 @Entity
 class Member(
-    name: String,
-    password: String,
-    email: String,
-) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    var id: Long? = null
-    var password: String = password
-    var name: String = name
-    var email: String = email
-    var role: String = "user"
+    var id: Long? = null,
+    var password: String,
+    var name: String,
+    var email: String,
+    var role: String = "user",
+) {
 
     companion object {
         fun fromDto(dto: MemberDto): Member {
