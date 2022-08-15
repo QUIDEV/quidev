@@ -64,10 +64,10 @@ internal class MemberServiceTest {
     @Test
     fun findByEmail() {
         val shaneEmail = "shane@argonet.co.kr"
-        val shane = Member("shane", "1234", shaneEmail)
+        val shane = Member(name = "shane", password = "1234", email = shaneEmail)
         createMember(shane)
-        createMember(Member("jenny", "1234", "shane@ssd.co.kr"))
-        createMember(Member("june", "1256", "june@apple.co.kr"))
+        createMember(Member(name = "jenny", password = "1234", email = "shane@ssd.co.kr"))
+        createMember(Member(name = "june", password = "1256", email = "june@apple.co.kr"))
         val findMember = memberService.findByEmail(shaneEmail) ?: throw NoSuchElementException()
         assertThat(findMember).isEqualTo(shane)
         assertThrows<NoSuchElementException> {

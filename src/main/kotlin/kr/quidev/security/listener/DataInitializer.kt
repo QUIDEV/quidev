@@ -36,7 +36,7 @@ class DataInitializer(
     ): Member {
         var member = memberRepository.findMemberByEmail(userName).orElse(null)
         if (member == null) {
-            member = Member(userName, passwordEncoder.encode(password), email)
+            member = Member(name = userName, password = passwordEncoder.encode(password), email = email)
         }
         return memberRepository.save(member)
     }
