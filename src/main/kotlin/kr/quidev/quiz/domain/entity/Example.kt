@@ -13,7 +13,6 @@ class Example(
     var text: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "example")
     @JsonIgnore
     var quiz: Quiz,
 

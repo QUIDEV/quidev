@@ -22,4 +22,5 @@ internal class QuizControllerTest {
         val findQuiz = controller.findQuiz(quiz.id!!)
         assertThat(findQuiz.example).hasSize(3)
     }
+
 }

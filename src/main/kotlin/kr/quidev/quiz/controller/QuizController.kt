@@ -1,6 +1,7 @@
 package kr.quidev.quiz.controller
 
 import kr.quidev.quiz.domain.entity.Quiz
+import kr.quidev.quiz.domain.entity.QuizDto
 import kr.quidev.quiz.service.QuizService
 import org.springframework.web.bind.annotation.*
 
@@ -11,13 +12,12 @@ class QuizController(
 ) {
 
     @GetMapping("/{id}")
-    fun findQuiz(@PathVariable id: Long): Quiz {
+    fun findQuiz(@PathVariable id: Long): QuizDto {
         val quiz = quizService.findById(id).orElseThrow()
-        // TODO user DTO
-        return quiz
+        return QuizDto.of(quiz);
     }
 
-    @GetMapping()
+    @GetMapping
     fun findAll(): MutableList<Quiz> {
         return quizService.findAll()
     }

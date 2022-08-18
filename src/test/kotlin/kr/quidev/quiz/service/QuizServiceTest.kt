@@ -22,8 +22,7 @@ internal class QuizServiceTest {
         val findAll = quizService.findAll()
         assertThat(findAll).isEmpty()
 
-        val examples = mutableListOf<Example>()
-        val quiz = Quiz(description = "desc", answer = "1234", example = examples)
+        val quiz = Quiz(description = "desc", answer = "1234")
         quizService.createQuiz(quiz, arrayOf("candi1", "candi2", "candi3"))
 
         val findById = quizService.findById(quiz.id!!).orElseThrow()
