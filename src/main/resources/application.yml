@@ -3,5 +3,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/quidev
     username: sa
     password:
+    hikari:
+      maximum-pool-size: 20
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect

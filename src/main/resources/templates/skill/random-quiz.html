@@ -9,12 +9,12 @@
   <div class="container d-flex justify-content-center">
     <dl>
       <li v-for="(example,i) in quiz.examples">
-        <input type="radio" name="answer" value="example"> {{example}}
+        <input @click="select" type="radio" name="answer" :value="example"> {{example}}
       </li>
     </dl>
   </div>
   <div class="container d-flex justify-content-center">
-    <button class="ui-button">submit</button>
+    <button @click="submit" class="ui-button" :disabled="!selected">submit</button>
   </div>
 </div>
 </body>
@@ -25,7 +25,8 @@
     const app = createApp({
         data() {
             return {
-                quiz: {}
+                quiz: {},
+                selected: ''
             }
         },
         mounted() {
@@ -33,9 +34,42 @@
                 url: '/api/skills/' + id,
                 success: function (data) {
                     app.quiz = data;
-                    console.log(this.quiz);
                 }
             })
+        },
+        methods: {
+            submit() {
+                $.ajax({
+                    url: '/api/quiz/submit/' + id,
+                    type: 'post',
+                    data: {
+                        answer: app.selected
+                    },
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result) {
+                            Swal.fire(
+                                app.selected + ' is correct',
+                                'Good job!',
+                                'success'
+                            )
+                        } else {
+                            Swal.fire(
+                                app.selected + ' is not correct',
+                                'Choose another one',
+                                'error'
+                            )
+                        }
+                    }, error: function (xhr, status, error) {
+                        console.log(xhr);
+                        console.log(status);
+                        console.log(error);
+                    }
+                })
+            },
+            select(event) {
+                app.selected = event.target.value;
+            }
         }
     }).mount('#app')
 </script>

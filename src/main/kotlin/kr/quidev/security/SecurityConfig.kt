@@ -21,10 +21,9 @@ class SecurityConfig(private val userDetailsService: UserDetailsService) {
 
     @Bean
     fun webSecurityCustomizer(): WebSecurityCustomizer {
-        return WebSecurityCustomizer {
-                web -> web.ignoring()
-            .antMatchers("/css/**")
-            .antMatchers("/api/**")
+        return WebSecurityCustomizer { web ->
+            web.ignoring()
+                .antMatchers("/css/**")
         }
     }
 
@@ -33,11 +32,12 @@ class SecurityConfig(private val userDetailsService: UserDetailsService) {
         http.authorizeRequests()
             .antMatchers("/adm")
             .access("hasRole('ADMIN')")
-            .antMatchers("/login").permitAll()
-            .antMatchers("/", "/join")
+            .antMatchers("/", "/join", "/login")
             .permitAll()
             .anyRequest()
             .authenticated()
+            .and()
+            .cors().and().csrf().disable()
 
         http.formLogin()
             .defaultSuccessUrl("/")
