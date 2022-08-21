@@ -14,9 +14,8 @@ class CustomUserDetailsService(val memberRepository: MemberRepository) : UserDet
 
     override fun loadUserByUsername(username: String): UserDetails {
 
-        val member =
-            memberRepository.findMemberByEmail(username).orElse(null)
-                ?: throw UsernameNotFoundException("invalid email address")
+        val member = memberRepository.findMemberByEmail(username).orElse(null)
+            ?: throw UsernameNotFoundException("invalid email address")
 
         val roles = mutableListOf<GrantedAuthority>()
         roles.add(SimpleGrantedAuthority(member.role))

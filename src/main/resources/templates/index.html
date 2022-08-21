@@ -2,8 +2,16 @@
 <head th:replace="layout/header::userHead"></head>
 <div th:replace="layout/top::header"></div>
 <body>
-  <div class="container d-flex justify-content-center">
-    <h3>welcome to quidev</h3>
-  </div>
+<div class="container d-flex justify-content-center">
+  <h3>훈련 가능한 언어 목록</h3>
+</div>
+<div class="container d-flex justify-content-center">
+  <ul th:each="skill : ${skills}">
+    <li><a th:href="@{/skills/{id}(id=${skill.id})}"
+           th:text="@{{name}({size})(name=${skill.name}, size=${skill.quizzes.size})}"></a>
+    </li>
+  </ul>
+</div>
+</div>
 </body>
 </html>

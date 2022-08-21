@@ -28,11 +28,9 @@ class QuizService(
 
     fun createQuiz(quiz: Quiz, arr: Array<String>): Quiz {
         val quiz = quizRepository.save(quiz)
-        val examples = mutableListOf<Example>()
         for (example in arr) {
-            examples.add(createExample(example, quiz))
+            quiz.examples.add(createExample(example, quiz))
         }
-        quiz.example = examples
         log.info("created new quiz:{}", quiz)
 
         return quiz

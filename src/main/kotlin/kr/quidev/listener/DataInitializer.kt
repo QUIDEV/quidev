@@ -1,7 +1,11 @@
-package kr.quidev.security.listener
+package kr.quidev.listener
 
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.repository.MemberRepository
+import kr.quidev.quiz.domain.entity.Quiz
+import kr.quidev.quiz.domain.entity.Skill
+import kr.quidev.quiz.repository.SkillRepository
+import kr.quidev.quiz.service.QuizService
 import org.springframework.context.ApplicationListener
 import org.springframework.context.event.ContextRefreshedEvent
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -12,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional
 class DataInitializer(
     private val memberRepository: MemberRepository,
     private val passwordEncoder: PasswordEncoder,
+    private val quizService: QuizService,
+    private val skillRepository: SkillRepository,
 ) : ApplicationListener<ContextRefreshedEvent?> {
     private var alreadySetup = false
 
@@ -25,11 +31,23 @@ class DataInitializer(
     }
 
     private fun setupSecurityResources() {
-        createUserIfNotFound("shane", "1234", "shane")
+        createDefaultUser("shane", "1234", "shane")
+        createDefaultQuiz()
+    }
+
+    private fun createDefaultQuiz() {
+        val desc =
+            "Given the string \"helloworld\" saved in a variable called str, what would str.substring(2, 5) return?"
+        val answer = "llo"
+
+        val skill = Skill(name = "java")
+        skillRepository.save(skill)
+        val quiz = Quiz(description = desc, answer = answer, skill = skill)
+        quizService.createQuiz(quiz, arrayOf("hello", "ell", "low", "world", "wo"))
     }
 
     @Transactional
-    fun createUserIfNotFound(
+    fun createDefaultUser(
         userName: String,
         password: String,
         email: String,

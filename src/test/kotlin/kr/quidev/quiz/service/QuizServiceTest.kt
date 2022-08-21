@@ -19,15 +19,14 @@ internal class QuizServiceTest {
 
     @Test
     fun createTest() {
-        val findAll = quizService.findAll()
-        assertThat(findAll).isEmpty()
+        val findAllSize = quizService.findAll().size
 
-        val examples = mutableListOf<Example>()
-        val quiz = Quiz(description = "desc", answer = "1234", example = examples)
+        val quiz = Quiz(description = "desc", answer = "1234")
         quizService.createQuiz(quiz, arrayOf("candi1", "candi2", "candi3"))
 
         val findById = quizService.findById(quiz.id!!).orElseThrow()
         assertThat(findById.description).isEqualTo("desc")
-        assertThat(findById.example).hasSize(3)
+        assertThat(findById.examples).hasSize(3)
+        assertThat(quizService.findAll().size).isEqualTo(findAllSize + 1)
     }
 }

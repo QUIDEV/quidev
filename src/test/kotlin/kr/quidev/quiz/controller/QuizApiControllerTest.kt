@@ -1,5 +1,6 @@
 package kr.quidev.quiz.controller
 
+import kr.quidev.quiz.controller_api.QuizApiController
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,15 +12,16 @@ import javax.transaction.Transactional
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
-internal class QuizControllerTest {
+internal class QuizApiControllerTest {
 
     @Autowired
-    private lateinit var controller: QuizController
+    private lateinit var controller: QuizApiController
 
     @Test
     fun createQuiz() {
         val quiz = controller.createQuiz("desc", "answer", arrayOf("candi1", "candi2", "candi3"))
         val findQuiz = controller.findQuiz(quiz.id!!)
-        assertThat(findQuiz.example).hasSize(3)
+        assertThat(findQuiz.examples).hasSize(4)
     }
+
 }

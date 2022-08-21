@@ -1,0 +1,76 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout/header::userHead"></head>
+<div th:replace="layout/top::header"></div>
+<body>
+<div id="app">
+  <div class="container d-flex justify-content-center">
+    <h4 v-text="quiz.description"></h4>
+  </div>
+  <div class="container d-flex justify-content-center">
+    <dl>
+      <li v-for="(example,i) in quiz.examples">
+        <input @click="select" type="radio" name="answer" :value="example"> {{example}}
+      </li>
+    </dl>
+  </div>
+  <div class="container d-flex justify-content-center">
+    <button @click="submit" class="ui-button" :disabled="!selected">submit</button>
+  </div>
+</div>
+</body>
+<script>
+    const {createApp} = Vue
+    const id = "[[${id}]]";
+
+    const app = createApp({
+        data() {
+            return {
+                quiz: {},
+                selected: ''
+            }
+        },
+        mounted() {
+            $.ajax({
+                url: '/api/skills/' + id,
+                success: function (data) {
+                    app.quiz = data;
+                }
+            })
+        },
+        methods: {
+            submit() {
+                $.ajax({
+                    url: '/api/quiz/submit/' + id,
+                    type: 'post',
+                    data: {
+                        answer: app.selected
+                    },
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result) {
+                            Swal.fire(
+                                app.selected + ' is correct',
+                                'Good job!',
+                                'success'
+                            )
+                        } else {
+                            Swal.fire(
+                                app.selected + ' is not correct',
+                                'Choose another one',
+                                'error'
+                            )
+                        }
+                    }, error: function (xhr, status, error) {
+                        console.log(xhr);
+                        console.log(status);
+                        console.log(error);
+                    }
+                })
+            },
+            select(event) {
+                app.selected = event.target.value;
+            }
+        }
+    }).mount('#app')
+</script>
+</html>
