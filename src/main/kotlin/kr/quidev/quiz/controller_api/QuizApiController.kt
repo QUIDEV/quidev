@@ -1,4 +1,4 @@
-package kr.quidev.quiz.controller
+package kr.quidev.quiz.controller_api
 
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.domain.entity.QuizDto
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/quiz")
-class QuizController(
+class QuizApiController(
     val quizService: QuizService
 ) {
 

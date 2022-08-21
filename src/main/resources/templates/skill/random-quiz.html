@@ -2,15 +2,41 @@
 <head th:replace="layout/header::userHead"></head>
 <div th:replace="layout/top::header"></div>
 <body>
-<div class="container d-flex justify-content-center">
-  <h4 th:text="${quiz.description}"></h4>
-</div>
-<div class="container d-flex justify-content-center">
-  <div th:each="example : ${quiz.examples}">
-    <input type="radio" name="answer" th:text="${example}">
+<div id="app">
+  <div class="container d-flex justify-content-center">
+    <h4 v-text="quiz.description"></h4>
   </div>
-  <button class="ui-button">submit</button>
-</div>
+  <div class="container d-flex justify-content-center">
+    <dl>
+      <li v-for="(example,i) in quiz.examples">
+        <input type="radio" name="answer" value="example"> {{example}}
+      </li>
+    </dl>
+  </div>
+  <div class="container d-flex justify-content-center">
+    <button class="ui-button">submit</button>
+  </div>
 </div>
 </body>
+<script>
+    const {createApp} = Vue
+    const id = "[[${id}]]";
+
+    const app = createApp({
+        data() {
+            return {
+                quiz: {}
+            }
+        },
+        mounted() {
+            $.ajax({
+                url: '/api/skills/' + id,
+                success: function (data) {
+                    app.quiz = data;
+                    console.log(this.quiz);
+                }
+            })
+        }
+    }).mount('#app')
+</script>
 </html>
