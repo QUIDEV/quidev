@@ -3,14 +3,13 @@
 <div th:replace="layout/top::header"></div>
 <body>
 <div class="container d-flex justify-content-center">
-  <h3>welcome to quidev</h3>
+  <h4 th:text="${quiz.description}"></h4>
 </div>
 <div class="container d-flex justify-content-center">
-  <ul th:each="skill : ${skills}">
-    <li><a th:href="@{/skills/{id}(id=${skill.id})}" th:text="${skill.name}"></a>
-      <span th:text="${skill.quizzes.size}"></span>
-    </li>
-  </ul>
+  <div th:each="example : ${quiz.examples}">
+    <input type="radio" name="answer" th:text="${example}">
+  </div>
+  <button class="ui-button">submit</button>
 </div>
 </div>
 </body>

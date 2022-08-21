@@ -19,4 +19,8 @@ class Skill(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "skill")
     val quizzes = mutableListOf<Quiz>()
 
+    override fun toString(): String {
+        return "Skill(id=$id, parent=$parent, name='$name')"
+    }
+
 }
