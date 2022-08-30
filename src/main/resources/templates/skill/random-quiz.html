@@ -46,7 +46,8 @@
                         answer: app.selected
                     },
                     dataType: 'json',
-                    success: function (result) {
+                    success: function (response) {
+                        const result = response.result;
                         if (result) {
                             Swal.fire(
                                 app.selected + ' is correct',
@@ -56,7 +57,7 @@
                         } else {
                             Swal.fire(
                                 app.selected + ' is not correct',
-                                'Choose another one',
+                                response.explanation,
                                 'error'
                             )
                         }

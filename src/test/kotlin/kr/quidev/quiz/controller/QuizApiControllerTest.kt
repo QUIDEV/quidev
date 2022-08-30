@@ -19,7 +19,12 @@ internal class QuizApiControllerTest {
 
     @Test
     fun createQuiz() {
-        val quiz = controller.createQuiz("desc", "answer", arrayOf("candi1", "candi2", "candi3"))
+        val quiz = controller.createQuiz(
+            desc = "desc",
+            answer = "answer",
+            explanation = "explanation",
+            examples = arrayOf("candi1", "candi2", "candi3")
+        )
         val findQuiz = controller.findQuiz(quiz.id!!)
         assertThat(findQuiz.examples).hasSize(4)
     }
