@@ -5,10 +5,6 @@ import javax.persistence.*
 
 @Entity
 class Quiz(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
-
     @Column(nullable = false, length = 5000)
     var description: String,
     var answer: String,
@@ -16,9 +12,15 @@ class Quiz(
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     var skill: Skill?,
+    var explanation: String,
 
     ) {
-    constructor(description: String, answer: String) : this(description = description, answer = answer, skill = null)
+    constructor(description: String, answer: String, explanation: String) :
+            this(description = description, answer = answer, skill = null, explanation = explanation)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null
 
     @OneToMany(mappedBy = "quiz")
     val examples = mutableListOf<Example>()

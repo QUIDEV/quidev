@@ -2,6 +2,7 @@ package kr.quidev.quiz.controller_api
 
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.domain.entity.QuizDto
+import kr.quidev.quiz.domain.response.QuizResponse
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.security.domain.MemberContext
 import org.slf4j.LoggerFactory
@@ -26,15 +27,15 @@ class QuizApiController(
         @PathVariable id: Long,
         answer: String,
         @AuthenticationPrincipal memberContext: MemberContext,
-    ): Boolean {
+    ): QuizResponse {
         val quiz = quizService.findById(id).orElseThrow()
         // TODO save answer data on login account
         val member = memberContext.member
-        val correct = quiz.answer == answer
-        if (correct) {
+        val result = quiz.answer == answer
+        if (result) {
             log.info("{} solved {}", member.name, quiz.id)
         }
-        return correct
+        return QuizResponse.of(result, quiz.explanation)
     }
 
     @GetMapping
@@ -44,9 +45,9 @@ class QuizApiController(
 
     @PostMapping("new")
     fun createQuiz(
-        desc: String, answer: String, examples: Array<String>
+        desc: String, answer: String, explanation: String, examples: Array<String>
     ): Quiz {
-        val quiz = Quiz(description = desc, answer = answer)
+        val quiz = Quiz(description = desc, answer = answer, explanation = explanation)
         quizService.createQuiz(quiz, examples)
         return quiz
     }

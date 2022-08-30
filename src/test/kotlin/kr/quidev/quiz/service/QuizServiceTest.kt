@@ -21,7 +21,7 @@ internal class QuizServiceTest {
     fun createTest() {
         val findAllSize = quizService.findAll().size
 
-        val quiz = Quiz(description = "desc", answer = "1234")
+        val quiz = Quiz(description = "desc", answer = "1234", explanation = "...")
         quizService.createQuiz(quiz, arrayOf("candi1", "candi2", "candi3"))
 
         val findById = quizService.findById(quiz.id!!).orElseThrow()

@@ -39,10 +39,11 @@ class DataInitializer(
         val desc =
             "Given the string \"helloworld\" saved in a variable called str, what would str.substring(2, 5) return?"
         val answer = "llo"
+        val explanation = "substring method return the part of the string between the stat and end indexes. include start index but does not include last indexed character."
 
         val skill = Skill(name = "java")
         skillRepository.save(skill)
-        val quiz = Quiz(description = desc, answer = answer, skill = skill)
+        val quiz = Quiz(description = desc, answer = answer, skill = skill, explanation = explanation)
         quizService.createQuiz(quiz, arrayOf("hello", "ell", "low", "world", "wo"))
     }
 
