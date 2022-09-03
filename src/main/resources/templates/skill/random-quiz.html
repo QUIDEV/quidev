@@ -40,7 +40,7 @@
         methods: {
             submit() {
                 $.ajax({
-                    url: '/api/quiz/submit/' + id,
+                    url: '/api/quiz/submit/' + app.quiz.id,
                     type: 'post',
                     data: {
                         answer: app.selected
