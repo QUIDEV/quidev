@@ -36,15 +36,33 @@ class DataInitializer(
     }
 
     private fun createDefaultQuiz() {
-        val desc =
-            "Given the string \"helloworld\" saved in a variable called str, what would str.substring(2, 5) return?"
-        val answer = "llo"
-        val explanation = "substring method return the part of the string between the stat and end indexes. include start index but does not include last indexed character."
 
-        val skill = Skill(name = "java")
-        skillRepository.save(skill)
-        val quiz = Quiz(description = desc, answer = answer, skill = skill, explanation = explanation)
-        quizService.createQuiz(quiz, arrayOf("hello", "ell", "low", "world", "wo"))
+        val java = Skill(name = "java")
+        skillRepository.save(java)
+
+        quizService.createQuiz(
+            Quiz(
+                description = "Given the string \"helloworld\" saved in a variable called str, what would str.substring(2, 5) return?",
+                answer = "llo",
+                skill = java,
+                explanation = "substring method return the part of the string between the stat and end indexes. include start index but does not include last indexed character."
+            ), arrayOf("hello", "ell", "low", "world", "wo")
+        )
+
+        quizService.createQuiz(
+            Quiz(
+                description = "What is a valid use of the hashCode() method?",
+                answer = "deciding if two instances of a class are equal",
+                skill = java,
+                explanation = ""
+            ),
+            arrayOf(
+                "encrypting user passwords",
+                "enabling HashMap to find matches faster",
+                "moving objects from a List to a HashMap"
+            )
+        )
+
     }
 
     @Transactional

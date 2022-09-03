@@ -7,3 +7,8 @@ spring:
       maximum-pool-size: 20
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
