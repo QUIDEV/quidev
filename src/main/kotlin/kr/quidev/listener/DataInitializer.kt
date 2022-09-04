@@ -54,7 +54,7 @@ class DataInitializer(
                 description = "What is a valid use of the hashCode() method?",
                 answer = "deciding if two instances of a class are equal",
                 skill = java,
-                explanation = ""
+                explanation = "You need hashCode to loosely identify it."
             ),
             arrayOf(
                 "encrypting user passwords",
