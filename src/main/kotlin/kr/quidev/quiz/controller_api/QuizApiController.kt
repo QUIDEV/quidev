@@ -5,6 +5,7 @@ import kr.quidev.quiz.domain.entity.QuizDto
 import kr.quidev.quiz.domain.response.QuizResponse
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.security.domain.MemberContext
+import kr.quidev.submission.service.SubmissionService
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/quiz")
 class QuizApiController(
-    val quizService: QuizService
+    val quizService: QuizService,
+    val submissionService: SubmissionService
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -28,14 +30,7 @@ class QuizApiController(
         answer: String,
         @AuthenticationPrincipal memberContext: MemberContext,
     ): QuizResponse {
-        val quiz = quizService.findById(id).orElseThrow()
-        // TODO save answer data on login account
-        val member = memberContext.member
-        val result = quiz.answer == answer
-        if (result) {
-            log.info("{} solved {}", member.name, quiz.id)
-        }
-        return QuizResponse.of(result, quiz.explanation)
+        return submissionService.submit(memberContext.member, id, answer)
     }
 
     @GetMapping

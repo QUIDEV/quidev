@@ -1,6 +1,9 @@
 package kr.quidev.quiz.domain.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
+import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
@@ -21,6 +24,12 @@ class Quiz(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
+
+    @CreationTimestamp
+    var createdDate: LocalDateTime? = null
+
+    @UpdateTimestamp
+    var updatedDate: LocalDateTime? = null
 
     @OneToMany(mappedBy = "quiz")
     val examples = mutableListOf<Example>()
