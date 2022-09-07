@@ -5,11 +5,14 @@ import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime
 import javax.persistence.*
+import javax.validation.constraints.NotBlank
 
 @Entity
 class Quiz(
+
     @Column(nullable = false, length = 5000)
     var description: String,
+
     var answer: String,
 
     @ManyToOne(fetch = FetchType.LAZY)

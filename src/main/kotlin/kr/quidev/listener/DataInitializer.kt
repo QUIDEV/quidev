@@ -2,12 +2,14 @@ package kr.quidev.listener
 
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.repository.MemberRepository
+import kr.quidev.quiz.domain.ProgrammingLanguage
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.repository.SkillRepository
 import kr.quidev.quiz.service.QuizService
 import org.springframework.context.ApplicationListener
 import org.springframework.context.event.ContextRefreshedEvent
+import org.springframework.core.env.Environment
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -18,12 +20,13 @@ class DataInitializer(
     private val passwordEncoder: PasswordEncoder,
     private val quizService: QuizService,
     private val skillRepository: SkillRepository,
+    private val environment: Environment
 ) : ApplicationListener<ContextRefreshedEvent?> {
     private var alreadySetup = false
 
     @Transactional
     override fun onApplicationEvent(event: ContextRefreshedEvent) {
-        if (alreadySetup) {
+        if (alreadySetup || !environment.activeProfiles.contains("dev")) {
             return
         }
         setupSecurityResources()
@@ -37,7 +40,7 @@ class DataInitializer(
 
     private fun createDefaultQuiz() {
 
-        val java = Skill(name = "java")
+        val java = Skill(name = ProgrammingLanguage.JAVA.toString())
         skillRepository.save(java)
 
         quizService.createQuiz(

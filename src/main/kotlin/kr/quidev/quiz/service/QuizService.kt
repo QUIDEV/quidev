@@ -2,6 +2,7 @@ package kr.quidev.quiz.service
 
 import kr.quidev.quiz.domain.entity.Example
 import kr.quidev.quiz.domain.entity.Quiz
+import kr.quidev.quiz.domain.entity.QuizCreateDto
 import kr.quidev.quiz.repository.ExampleRepository
 import kr.quidev.quiz.repository.QuizRepository
 import org.slf4j.LoggerFactory
@@ -29,6 +30,18 @@ class QuizService(
     fun createQuiz(quiz: Quiz, arr: Array<String>): Quiz {
         val quiz = quizRepository.save(quiz)
         for (example in arr) {
+            quiz.examples.add(createExample(example, quiz))
+        }
+        log.info("created new quiz:{}", quiz)
+
+        return quiz
+    }
+
+    fun createQuiz(createDto: QuizCreateDto): Quiz {
+        val quiz =
+            Quiz(description = createDto.description!!, answer = createDto.answer!!, explanation = createDto.explanation!!)
+        quizRepository.save(quiz)
+        for (example in createDto.examples) {
             quiz.examples.add(createExample(example, quiz))
         }
         log.info("created new quiz:{}", quiz)
