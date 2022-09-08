@@ -38,8 +38,9 @@ internal class QuizApiControllerTest {
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("\"description\":\"desc\"")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.answer").value("answer"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.explanation", Matchers.containsString("explanation")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.body.answer").value("answer"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.body.explanation", Matchers.containsString("explanation")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("200"))
     }
 
     @Test
@@ -57,7 +58,9 @@ internal class QuizApiControllerTest {
                 .with(SecurityMockMvcRequestPostProcessors.user("shane"))
                 .content(jacksonObjectMapper().writeValueAsString(quizCreateDto))
         )
-            .andExpect(MockMvcResultMatchers.status().is4xxClientError)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.body").isEmpty)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.errors").isNotEmpty)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("400"))
     }
 
 }

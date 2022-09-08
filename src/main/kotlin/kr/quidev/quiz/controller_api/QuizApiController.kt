@@ -1,5 +1,6 @@
 package kr.quidev.quiz.controller_api
 
+import kr.quidev.common.ApiResponse
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.domain.entity.QuizCreateDto
 import kr.quidev.quiz.domain.entity.QuizDto
@@ -10,7 +11,6 @@ import kr.quidev.submission.service.SubmissionService
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.BindingResult
-import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -45,9 +45,14 @@ class QuizApiController(
     @PostMapping("new")
     fun createQuiz(
         @RequestBody @Valid createDto: QuizCreateDto,
-//        bindingResult: BindingResult
-    ): Quiz {
-        return quizService.createQuiz(createDto)
+        bindingResult: BindingResult
+    ): ApiResponse {
+        if (bindingResult.hasErrors()) {
+            val errors = bindingResult.fieldErrors.associate { it.field to it.defaultMessage }
+            return ApiResponse.error(errors, 400)
+        }
+        val quiz = quizService.createQuiz(createDto)
+        return ApiResponse.ok(quiz)
     }
 
 }
