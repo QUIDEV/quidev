@@ -5,11 +5,11 @@ import javax.validation.constraints.NotBlank
 data class QuizCreateDto(
 
     @field:NotBlank
-    val description: String,
+    val description: String?,
     @field:NotBlank
-    val answer: String,
+    val answer: String?,
     @field:NotBlank
-    val explanation: String,
+    val explanation: String?,
     val examples: Array<String>
 ) {
     override fun equals(other: Any?): Boolean {

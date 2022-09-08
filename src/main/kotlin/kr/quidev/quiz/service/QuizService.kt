@@ -39,7 +39,11 @@ class QuizService(
 
     fun createQuiz(createDto: QuizCreateDto): Quiz {
         val quiz =
-            Quiz(description = createDto.description!!, answer = createDto.answer!!, explanation = createDto.explanation!!)
+            Quiz(
+                description = createDto.description!!,
+                answer = createDto.answer!!,
+                explanation = createDto.explanation!!
+            )
         quizRepository.save(quiz)
         for (example in createDto.examples) {
             quiz.examples.add(createExample(example, quiz))
