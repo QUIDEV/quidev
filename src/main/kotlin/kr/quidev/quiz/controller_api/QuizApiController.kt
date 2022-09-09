@@ -10,7 +10,6 @@ import kr.quidev.security.domain.MemberContext
 import kr.quidev.submission.service.SubmissionService
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -43,14 +42,7 @@ class QuizApiController(
     }
 
     @PostMapping("new")
-    fun createQuiz(
-        @RequestBody @Valid createDto: QuizCreateDto,
-        bindingResult: BindingResult
-    ): ApiResponse {
-        if (bindingResult.hasErrors()) {
-            val errors = bindingResult.fieldErrors.associate { it.field to it.defaultMessage }
-            return ApiResponse.error(errors, 400)
-        }
+    fun createQuiz(@RequestBody @Valid createDto: QuizCreateDto): ApiResponse {
         val quiz = quizService.createQuiz(createDto)
         return ApiResponse.ok(quiz)
     }

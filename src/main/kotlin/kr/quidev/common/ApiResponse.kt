@@ -3,20 +3,23 @@ package kr.quidev.common
 data class ApiResponse(
     val body: Any?,
     val status: Int?,
-    val errors: Map<String, String?>
 ) {
+    var error: Error? = null
+
+    class Error(
+        val message: String?,
+        val validation: Map<String, String?>?
+    )
 
     companion object {
         fun ok(body: Any): ApiResponse {
-            return ApiResponse(errors = emptyMap(), body = body, status = 200)
+            return ApiResponse(body = body, status = 200)
         }
 
-        fun error(errors: Map<String, String?>, status: Int?): ApiResponse {
-            return ApiResponse(errors = errors, body = null, status = status)
-        }
-
-        fun error(errors: Map<String, String?>): ApiResponse {
-            return error(errors = errors, status = null)
+        fun error(status: Int?, message: String?, errors: Map<String, String?>): ApiResponse {
+            val apiResponse = ApiResponse(body = null, status = status)
+            apiResponse.error = Error(message, validation = errors)
+            return apiResponse
         }
     }
 }

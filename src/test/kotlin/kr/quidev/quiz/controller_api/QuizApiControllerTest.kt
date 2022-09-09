@@ -52,7 +52,7 @@ internal class QuizApiControllerTest {
     fun createQuizNoDesc() {
         for (description in arrayOf("", " ", null)) {
             val quizCreateDto = QuizCreateDto(
-                description = null,
+                description = description,
                 answer = "answer",
                 explanation = "explanation",
                 examples = arrayOf("example1", "example2", "example3")
@@ -64,7 +64,7 @@ internal class QuizApiControllerTest {
                     .content(jacksonObjectMapper().writeValueAsString(quizCreateDto))
             )
             result.andExpect(MockMvcResultMatchers.jsonPath("$.body").isEmpty)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.errors").isNotEmpty)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").isNotEmpty)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("400"))
 
             log.info(result.andReturn().response.contentAsString)
