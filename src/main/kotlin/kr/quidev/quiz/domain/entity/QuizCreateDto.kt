@@ -10,6 +10,7 @@ data class QuizCreateDto(
     val answer: String?,
     @field:NotBlank
     val explanation: String?,
+    val skillId: Long?,
     val examples: Array<String>
 ) {
     override fun equals(other: Any?): Boolean {

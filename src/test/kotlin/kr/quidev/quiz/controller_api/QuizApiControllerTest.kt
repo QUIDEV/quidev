@@ -4,7 +4,9 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import kr.quidev.common.ApiResponse
 import kr.quidev.quiz.domain.entity.QuizCreateDto
+import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.service.QuizService
+import kr.quidev.quiz.service.SkillService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -32,9 +34,14 @@ internal class QuizApiControllerTest {
     @Autowired
     lateinit var quizService: QuizService
 
+    @Autowired
+    lateinit var skillService: SkillService
+
     @Test
     @DisplayName("create quiz test: expected situation")
     fun createQuiz() {
+        val skill = skillService.save(Skill(id = null, parent = null, name = "java"))
+
         val description = "desc"
         val answer = "answer"
         val explanation = "explanation"
@@ -42,7 +49,8 @@ internal class QuizApiControllerTest {
             description = description,
             answer = answer,
             explanation = explanation,
-            examples = arrayOf("example1", "example2", "example3")
+            examples = arrayOf("example1", "example2", "example3"),
+            skillId = skill.id
         )
         val result = mockMvc.perform(
             MockMvcRequestBuilders.post("/api/quiz/new")
@@ -63,6 +71,8 @@ internal class QuizApiControllerTest {
         assertThat(findById.description).isEqualTo(description)
         assertThat(findById.explanation).isEqualTo(explanation)
         assertThat(findById.examples).hasSize(3)
+        assertThat(findById.skill).isEqualTo(skill)
+        assertThat(findById.skill?.name).isEqualTo("java")
     }
 
     @Test
@@ -73,7 +83,8 @@ internal class QuizApiControllerTest {
                 description = description,
                 answer = "answer",
                 explanation = "explanation",
-                examples = arrayOf("example1", "example2", "example3")
+                examples = arrayOf("example1", "example2", "example3"),
+                skillId = null
             )
             val result = mockMvc.perform(
                 MockMvcRequestBuilders.post("/api/quiz/new")

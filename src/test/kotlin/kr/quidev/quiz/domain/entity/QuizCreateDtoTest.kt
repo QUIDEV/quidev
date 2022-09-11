@@ -15,7 +15,8 @@ internal class QuizCreateDtoTest {
             description = "",
             answer = "answer",
             explanation = "explanation",
-            examples = arrayOf("e1", "e2", "e3")
+            examples = arrayOf("e1", "e2", "e3"),
+            skillId = null
         )
         val validate = validator.validate(quizCreateDto)
         assertThat(validate).hasSize(1)
