@@ -44,7 +44,7 @@ class QuizApiController(
     @PostMapping("new")
     fun createQuiz(@RequestBody @Valid createDto: QuizCreateDto): ApiResponse {
         val quiz = quizService.createQuiz(createDto)
-        return ApiResponse.ok(quiz)
+        return ApiResponse.ok(mapOf(Pair("id", quiz.id)))
     }
 
 }

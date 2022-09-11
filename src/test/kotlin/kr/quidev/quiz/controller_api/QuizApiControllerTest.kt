@@ -1,8 +1,11 @@
 package kr.quidev.quiz.controller_api
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import kr.quidev.common.ApiResponse
 import kr.quidev.quiz.domain.entity.QuizCreateDto
-import org.hamcrest.Matchers
+import kr.quidev.quiz.service.QuizService
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
@@ -14,37 +17,52 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import javax.transaction.Transactional
 
 @AutoConfigureMockMvc
 @SpringBootTest
+@Transactional
 internal class QuizApiControllerTest {
 
     @Autowired
     lateinit var mockMvc: MockMvc
     private val log = LoggerFactory.getLogger(javaClass)
+    private val mapper = jacksonObjectMapper()
+
+    @Autowired
+    lateinit var quizService: QuizService
 
     @Test
     @DisplayName("create quiz test: expected situation")
     fun createQuiz() {
+        val description = "desc"
+        val answer = "answer"
+        val explanation = "explanation"
         val quizCreateDto = QuizCreateDto(
-            description = "desc",
-            answer = "answer",
-            explanation = "explanation",
+            description = description,
+            answer = answer,
+            explanation = explanation,
             examples = arrayOf("example1", "example2", "example3")
         )
         val result = mockMvc.perform(
             MockMvcRequestBuilders.post("/api/quiz/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(SecurityMockMvcRequestPostProcessors.user("shane"))
-                .content(jacksonObjectMapper().writeValueAsString(quizCreateDto))
+                .content(mapper.writeValueAsString(quizCreateDto))
         )
         result.andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("\"description\":\"desc\"")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.body.answer").value("answer"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.body.explanation", Matchers.containsString("explanation")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("200"))
 
-        log.info(result.andReturn().response.contentAsString)
+        val content = result.andReturn().response.contentAsString
+        log.info("content : {}", content)
+        val response: ApiResponse = mapper.readValue(content)
+        val body = response.body as Map<*, *>
+        val id = body["id"].toString().toLong()
+
+        val findById = quizService.findById(id).orElseThrow()
+        assertThat(findById.answer).isEqualTo(answer)
+        assertThat(findById.description).isEqualTo(description)
+        assertThat(findById.explanation).isEqualTo(explanation)
+        assertThat(findById.examples).hasSize(3)
     }
 
     @Test
@@ -61,7 +79,7 @@ internal class QuizApiControllerTest {
                 MockMvcRequestBuilders.post("/api/quiz/new")
                     .contentType(MediaType.APPLICATION_JSON)
                     .with(SecurityMockMvcRequestPostProcessors.user("shane"))
-                    .content(jacksonObjectMapper().writeValueAsString(quizCreateDto))
+                    .content(mapper.writeValueAsString(quizCreateDto))
             )
             result.andExpect(MockMvcResultMatchers.jsonPath("$.body").isEmpty)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").isNotEmpty)
