@@ -14,11 +14,11 @@ data class QuizDto(
             answer.add(quiz.answer)
             quiz.examples.shuffled().stream().limit(3).map { e -> e.text }.forEach(Consumer { s -> answer.add(s) })
             answer.shuffle()
-            
+
             return QuizDto(
                 id = quiz.id,
                 description = quiz.description,
-                skill = quiz.skill?.let { skill -> skill.name } ?: null,
+                skill = quiz.skill?.let { skill -> skill.name },
                 examples = answer
             )
         }
