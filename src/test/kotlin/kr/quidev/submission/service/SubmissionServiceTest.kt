@@ -42,7 +42,7 @@ internal class SubmissionServiceTest {
         val member = memberService.createMember(member)
         val correctAnswer = "1234"
         val wrongAnswer = "1235"
-        val quiz = Quiz(description = "desc", answer = correctAnswer, explanation = "...")
+        val quiz = Quiz(description = "desc", answer = correctAnswer, explanation = "...", submitter = member)
         quizService.createQuiz(quiz, arrayOf("candi1", "candi2", "candi3"))
 
         // When

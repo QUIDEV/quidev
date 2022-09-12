@@ -3,7 +3,6 @@ package kr.quidev.quiz.domain.entity
 import javax.validation.constraints.NotBlank
 
 data class QuizCreateDto(
-
     @field:NotBlank
     val description: String?,
     @field:NotBlank
@@ -11,7 +10,7 @@ data class QuizCreateDto(
     @field:NotBlank
     val explanation: String?,
     val skillId: Long?,
-    val examples: Array<String>
+    val examples: Array<String>,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

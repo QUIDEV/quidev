@@ -3,11 +3,15 @@ package kr.quidev.quiz.controller_api
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import kr.quidev.common.ApiResponse
+import kr.quidev.member.domain.entity.Member
+import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.entity.QuizCreateDto
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.quiz.service.SkillService
+import kr.quidev.security.service.CustomUserDetailsService
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
@@ -19,10 +23,12 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.web.context.WebApplicationContext
 import javax.transaction.Transactional
 
-@AutoConfigureMockMvc
+
 @SpringBootTest
+@AutoConfigureMockMvc
 @Transactional
 internal class QuizApiControllerTest {
 
@@ -32,14 +38,31 @@ internal class QuizApiControllerTest {
     private val mapper = jacksonObjectMapper()
 
     @Autowired
+    lateinit var context: WebApplicationContext
+
+    @Autowired
     lateinit var quizService: QuizService
 
     @Autowired
     lateinit var skillService: SkillService
 
+    @Autowired
+    lateinit var userDetailService: CustomUserDetailsService
+
+    @Autowired
+    lateinit var memberService: MemberService
+
+    val email = "shane@park.dev"
+
+    @BeforeEach
+    fun beforeEach() {
+        memberService.createMember(Member(name = "name", password = "pass", email = email))
+    }
+
     @Test
     @DisplayName("create quiz test: expected situation")
     fun createQuiz() {
+        val user = userDetailService.loadUserByUsername(email)
         val skill = skillService.save(Skill(id = null, parent = null, name = "java"))
 
         val description = "desc"
@@ -55,7 +78,7 @@ internal class QuizApiControllerTest {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.post("/api/quiz/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user("shane"))
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizCreateDto))
         )
         result.andExpect(MockMvcResultMatchers.status().isOk)
@@ -78,6 +101,7 @@ internal class QuizApiControllerTest {
     @Test
     @DisplayName("create quiz test: Description is not provided")
     fun createQuizNoDesc() {
+        val user = userDetailService.loadUserByUsername(email)
         for (description in arrayOf("", " ", null)) {
             val quizCreateDto = QuizCreateDto(
                 description = description,
@@ -89,7 +113,7 @@ internal class QuizApiControllerTest {
             val result = mockMvc.perform(
                 MockMvcRequestBuilders.post("/api/quiz/new")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .with(SecurityMockMvcRequestPostProcessors.user("shane"))
+                    .with(SecurityMockMvcRequestPostProcessors.user(user))
                     .content(mapper.writeValueAsString(quizCreateDto))
             )
             result.andExpect(MockMvcResultMatchers.jsonPath("$.body").isEmpty)

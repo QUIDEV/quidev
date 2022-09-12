@@ -17,9 +17,9 @@ class ExceptionControllerAdvice {
     @ResponseBody
     @ExceptionHandler
     fun methodArgumentNotValidHandler(e: MethodArgumentNotValidException): ApiResponse {
-        val errors = e.fieldErrors.associate {
-            it.field to it.defaultMessage
+        val validation = e.fieldErrors.map { e ->
+            ApiResponse.ValidationResult(e.field, e.defaultMessage ?: "")
         }
-        return ApiResponse.error(status = 400, errors = errors, message = "invalid request")
+        return ApiResponse.error(status = 400, validation = validation, message = "invalid request")
     }
 }

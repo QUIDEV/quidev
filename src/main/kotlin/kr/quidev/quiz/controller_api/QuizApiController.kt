@@ -42,8 +42,11 @@ class QuizApiController(
     }
 
     @PostMapping("new")
-    fun createQuiz(@RequestBody @Valid createDto: QuizCreateDto): ApiResponse {
-        val quiz = quizService.createQuiz(createDto)
+    fun createQuiz(
+        @RequestBody @Valid createDto: QuizCreateDto,
+        @AuthenticationPrincipal memberContext: MemberContext,
+    ): ApiResponse {
+        val quiz = quizService.createQuiz(memberContext.member, createDto)
         return ApiResponse.ok(mapOf(Pair("id", quiz.id)))
     }
 

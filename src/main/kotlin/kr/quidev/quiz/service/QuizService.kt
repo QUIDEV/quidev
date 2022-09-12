@@ -1,5 +1,6 @@
 package kr.quidev.quiz.service
 
+import kr.quidev.member.domain.entity.Member
 import kr.quidev.quiz.domain.entity.Example
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.domain.entity.QuizCreateDto
@@ -40,7 +41,7 @@ class QuizService(
         return quiz
     }
 
-    fun createQuiz(createDto: QuizCreateDto): Quiz {
+    fun createQuiz(submitter: Member, createDto: QuizCreateDto): Quiz {
         var skill: Skill? = null
         if (createDto.skillId != null) {
             skill = skillRepository.findById(createDto.skillId).orElseThrow()
@@ -50,7 +51,8 @@ class QuizService(
                 description = createDto.description!!,
                 answer = createDto.answer!!,
                 explanation = createDto.explanation!!,
-                skill = skill
+                skill = skill,
+                submitter = submitter
             )
         quizRepository.save(quiz)
         for (example in createDto.examples) {

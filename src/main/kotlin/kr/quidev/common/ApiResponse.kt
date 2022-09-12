@@ -8,18 +8,27 @@ data class ApiResponse(
 
     class Error(
         val message: String?,
-        val validation: Map<String, String?>?
-    )
+    ) {
+        val validation: MutableList<ValidationResult> = mutableListOf()
+    }
 
     companion object {
         fun ok(body: Any): ApiResponse {
             return ApiResponse(body = body, status = 200)
         }
 
-        fun error(status: Int?, message: String?, errors: Map<String, String?>): ApiResponse {
+        fun error(status: Int?, message: String?, validation: Collection<ValidationResult>): ApiResponse {
             val apiResponse = ApiResponse(body = null, status = status)
-            apiResponse.error = Error(message, validation = errors)
+            val error = Error(message)
+            apiResponse.error = error
+            error.validation.addAll(validation)
             return apiResponse
         }
     }
+
+    data class ValidationResult(
+        val field: String,
+        val message: String
+    )
+
 }

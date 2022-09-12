@@ -18,7 +18,7 @@ data class QuizDto(
             return QuizDto(
                 id = quiz.id,
                 description = quiz.description,
-                skill = quiz.skill?.let { skill -> skill.name } ?: null,
+                skill = quiz.skill?.let { skill -> skill.name },
                 examples = answer
             )
         }
