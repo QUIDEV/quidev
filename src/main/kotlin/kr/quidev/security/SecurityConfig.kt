@@ -23,7 +23,7 @@ class SecurityConfig(private val userDetailsService: UserDetailsService) {
     fun webSecurityCustomizer(): WebSecurityCustomizer {
         return WebSecurityCustomizer { web ->
             web.ignoring()
-                .antMatchers("/css/**")
+                .antMatchers("/css/**", "/h2-console/**")
         }
     }
 
