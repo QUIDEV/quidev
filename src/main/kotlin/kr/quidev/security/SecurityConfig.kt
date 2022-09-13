@@ -83,6 +83,8 @@ class SecurityConfig(private val userDetailsService: UserDetailsService) {
             .accessDeniedHandler { request, response, accessDeniedException ->
                 response.sendRedirect("/denied")
             }
+        http.headers()
+            .frameOptions().disable()
 
         return http.build()
     }
