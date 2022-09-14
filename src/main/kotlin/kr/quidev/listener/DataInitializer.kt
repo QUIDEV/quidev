@@ -2,9 +2,9 @@ package kr.quidev.listener
 
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.repository.MemberRepository
-import kr.quidev.quiz.domain.ProgrammingLanguage
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.domain.entity.Skill
+import kr.quidev.quiz.domain.enums.ProgrammingLanguage.*
 import kr.quidev.quiz.repository.SkillRepository
 import kr.quidev.quiz.service.QuizService
 import org.springframework.context.ApplicationListener
@@ -26,7 +26,8 @@ class DataInitializer(
 
     @Transactional
     override fun onApplicationEvent(event: ContextRefreshedEvent) {
-        if (alreadySetup || !environment.activeProfiles.contains("dev")) {
+        val activeProfiles = environment.activeProfiles
+        if (alreadySetup || (activeProfiles.isNotEmpty() && !activeProfiles.contains("dev"))) {
             return
         }
         setupSecurityResources()
@@ -40,15 +41,15 @@ class DataInitializer(
     }
 
     private fun createDefaultSkills(user: Member) {
-        skillRepository.save(Skill(name = ProgrammingLanguage.JAVA.toString()))
-        skillRepository.save(Skill(name = ProgrammingLanguage.PYTHON.toString()))
-        skillRepository.save(Skill(name = ProgrammingLanguage.C.toString()))
-        skillRepository.save(Skill(name = ProgrammingLanguage.KOTLIN.toString()))
+        skillRepository.save(Skill(name = JAVA.getValue()))
+        skillRepository.save(Skill(name = PYTHON.getValue()))
+        skillRepository.save(Skill(name = C.getValue()))
+        skillRepository.save(Skill(name = KOTLIN.getValue()))
     }
 
     private fun createDefaultQuiz(user: Member) {
 
-        val java = skillRepository.findByName("JAVA").orElseThrow()
+        val java = skillRepository.findByName(JAVA.getValue()).orElseThrow()
 
         quizService.createQuiz(
             Quiz(
