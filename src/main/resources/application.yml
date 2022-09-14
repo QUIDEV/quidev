@@ -7,8 +7,20 @@ spring:
       maximum-pool-size: 20
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+  thymeleaf:
+    cache: false
+  h2:
+    console:
+      enabled: true
 
 decorator:
   datasource:
     p6spy:
-      enable-logging: false
+      enable-logging: true
