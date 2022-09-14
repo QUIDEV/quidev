@@ -11,9 +11,10 @@ import kr.quidev.quiz.service.QuizService
 import kr.quidev.quiz.service.SkillService
 import kr.quidev.security.service.CustomUserDetailsService
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -30,6 +31,7 @@ import javax.transaction.Transactional
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class QuizApiControllerTest {
 
     @Autowired
@@ -53,18 +55,19 @@ internal class QuizApiControllerTest {
     lateinit var memberService: MemberService
 
     val email = "shane@park.dev"
+    private var member: Member? = null
+    private var skill: Skill? = null
 
-    @BeforeEach
-    fun beforeEach() {
-        memberService.createMember(Member(name = "name", password = "pass", email = email))
+    @BeforeAll
+    fun beforeAll() {
+        member = memberService.createMember(Member(name = "name", password = "pass", email = email))
+        skill = skillService.save(Skill(id = null, parent = null, name = "java"))
     }
 
     @Test
     @DisplayName("create quiz test: expected situation")
     fun createQuiz() {
-        val member = userDetailService.loadUserByUsername(email)
-        val skill = skillService.save(Skill(id = null, parent = null, name = "java"))
-
+        val user = userDetailService.loadUserByUsername(email)
         val description = "desc"
         val answer = "answer"
         val explanation = "explanation"
@@ -73,12 +76,12 @@ internal class QuizApiControllerTest {
             answer = answer,
             explanation = explanation,
             examples = arrayOf("example1", "example2", "example3"),
-            skillId = skill.id
+            skillId = skill!!.id
         )
         val result = mockMvc.perform(
             MockMvcRequestBuilders.post("/api/quiz/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(member))
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizCreateDto))
         )
         result.andExpect(MockMvcResultMatchers.status().isOk)
@@ -89,19 +92,18 @@ internal class QuizApiControllerTest {
         val body = response.body as Map<*, *>
         val id = body["id"].toString().toLong()
 
-        val findById = quizService.findById(id).orElseThrow()
+        val findById = quizService.findById(id)
         assertThat(findById.answer).isEqualTo(answer)
         assertThat(findById.description).isEqualTo(description)
         assertThat(findById.explanation).isEqualTo(explanation)
         assertThat(findById.examples).hasSize(3)
-        assertThat(findById.skill).isEqualTo(skill)
         assertThat(findById.skill?.name).isEqualTo("java")
     }
 
     @Test
     @DisplayName("create quiz test: Description is not provided")
     fun createQuizNoDesc() {
-        val member = userDetailService.loadUserByUsername(email)
+        val user = userDetailService.loadUserByUsername(email)
         for (description in arrayOf("", " ", null)) {
             val quizCreateDto = QuizCreateDto(
                 description = description,
@@ -113,7 +115,7 @@ internal class QuizApiControllerTest {
             val result = mockMvc.perform(
                 MockMvcRequestBuilders.post("/api/quiz/new")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .with(SecurityMockMvcRequestPostProcessors.user(member))
+                    .with(SecurityMockMvcRequestPostProcessors.user(user))
                     .content(mapper.writeValueAsString(quizCreateDto))
             )
             result.andExpect(MockMvcResultMatchers.jsonPath("$.body").isEmpty)
@@ -122,6 +124,33 @@ internal class QuizApiControllerTest {
 
             log.info(result.andReturn().response.contentAsString)
         }
+    }
+
+    @Test
+    fun findQuizTest() {
+        // Given
+        val description = "desc"
+        val quiz = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = description,
+                answer = "answer",
+                explanation = "explanation",
+                examples = arrayOf("example1", "example2", "example3"),
+                skillId = skill!!.id
+            )
+        )
+
+        // Expected
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/quiz/{id}", quiz.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user("randomUser"))
+        )
+        log.info("response: {}", result.andReturn().response.contentAsString)
+        result
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(quiz.id))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(description))
     }
 
 }

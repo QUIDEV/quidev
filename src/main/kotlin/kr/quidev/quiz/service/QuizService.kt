@@ -10,7 +10,6 @@ import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.quiz.repository.SkillRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.util.*
 import javax.transaction.Transactional
 
 @Service
@@ -23,8 +22,8 @@ class QuizService(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    fun findById(id: Long): Optional<Quiz> {
-        return quizRepository.findById(id)
+    fun findById(id: Long): Quiz {
+        return quizRepository.findById(id).orElseThrow()
     }
 
     fun findAll(): MutableList<Quiz> {

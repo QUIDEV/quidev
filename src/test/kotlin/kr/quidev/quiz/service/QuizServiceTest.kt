@@ -6,7 +6,10 @@ import kr.quidev.quiz.domain.entity.QuizCreateDto
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.domain.enums.ProgrammingLanguage
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class QuizServiceTest {
 
     @Autowired
@@ -26,22 +30,29 @@ internal class QuizServiceTest {
     @Autowired
     private lateinit var skillService: SkillService
 
+    private var member: Member? = null
+    private var java: Skill? = null
+
+    @BeforeAll
+    fun beforeAll() {
+        member = memberService.createMember(Member(name = "name", password = "", email = ""))
+        java = skillService.save(Skill(name = ProgrammingLanguage.JAVA.getValue()))
+    }
+
     @Test
     fun createQuizTest() {
         // Given
         val findAllSize = quizService.findAll().size
-        val member = memberService.createMember(Member(name = "name", password = "", email = ""))
-        val java = skillService.save(Skill(name = ProgrammingLanguage.JAVA.getValue()))
 
         val description = "desc"
         val answer = "something answer"
 
         // When
         val quiz = quizService.createQuiz(
-            submitter = member, createDto = QuizCreateDto(
+            submitter = member!!, createDto = QuizCreateDto(
                 description = description,
                 answer = answer,
-                skillId = java.id,
+                skillId = java!!.id,
                 explanation = "explanation",
                 examples = arrayOf(
                     "ex1",
@@ -52,10 +63,40 @@ internal class QuizServiceTest {
         )
 
         // Then
-        val findById = quizService.findById(quiz.id!!).orElseThrow()
+        val findById = quizService.findById(quiz.id!!)
         assertThat(findById.description).isEqualTo(description)
         assertThat(findById.answer).isEqualTo(answer)
         assertThat(findById.examples).hasSize(3)
         assertThat(quizService.findAll().size).isEqualTo(findAllSize + 1)
     }
+
+    @Test
+    fun findByIdTest() {
+        // Given
+        val description = "desc"
+        val createDto = QuizCreateDto(
+            description = description,
+            answer = "something answer",
+            skillId = java!!.id,
+            explanation = "explanation",
+            examples = arrayOf(
+                "ex1",
+                "ex2",
+                "ex3"
+            )
+        )
+
+        // When
+        val quiz = quizService.createQuiz(
+            submitter = member!!, createDto = createDto
+        )
+
+        // Then
+        assertThat(quizService.findAll()).hasSize(1)
+        val findById = quizService.findById(quiz.id!!)
+        assertThat(findById).isNotNull
+        assertThat(findById.id).isEqualTo(quiz.id)
+        assertThat(findById.description).isEqualTo(description)
+    }
+
 }
