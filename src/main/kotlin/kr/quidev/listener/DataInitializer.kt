@@ -2,7 +2,7 @@ package kr.quidev.listener
 
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.repository.MemberRepository
-import kr.quidev.quiz.domain.entity.Quiz
+import kr.quidev.quiz.domain.entity.QuizCreateDto
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.domain.enums.ProgrammingLanguage.*
 import kr.quidev.quiz.repository.SkillRepository
@@ -35,9 +35,9 @@ class DataInitializer(
     }
 
     private fun setupSecurityResources() {
-        val user = createDefaultUser("shane", "1234", "shane")
-        createDefaultSkills(user)
-        createDefaultQuiz(user)
+        val member = createDefaultUser("shane", "1234", "shane")
+        createDefaultSkills(member)
+        createDefaultQuiz(member)
     }
 
     private fun createDefaultSkills(user: Member) {
@@ -52,27 +52,26 @@ class DataInitializer(
         val java = skillRepository.findByName(JAVA.getValue()).orElseThrow()
 
         quizService.createQuiz(
-            Quiz(
+            submitter = user, createDto = QuizCreateDto(
                 description = "Given the string \"helloworld\" saved in a variable called str, what would str.substring(2, 5) return?",
                 answer = "llo",
-                skill = java,
+                skillId = java.id,
                 explanation = "substring method return the part of the string between the stat and end indexes. include start index but does not include last indexed character.",
-                submitter = user
-            ), arrayOf("hello", "ell", "low", "world", "wo")
+                examples = arrayOf("hello", "ell", "low", "world", "wo")
+            )
         )
 
         quizService.createQuiz(
-            Quiz(
+            submitter = user, createDto = QuizCreateDto(
                 description = "What is a valid use of the hashCode() method?",
                 answer = "deciding if two instances of a class are equal",
-                skill = java,
+                skillId = java.id,
                 explanation = "You need hashCode to loosely identify it.",
-                submitter = user
-            ),
-            arrayOf(
-                "encrypting user passwords",
-                "enabling HashMap to find matches faster",
-                "moving objects from a List to a HashMap"
+                examples = arrayOf(
+                    "encrypting user passwords",
+                    "enabling HashMap to find matches faster",
+                    "moving objects from a List to a HashMap"
+                )
             )
         )
 

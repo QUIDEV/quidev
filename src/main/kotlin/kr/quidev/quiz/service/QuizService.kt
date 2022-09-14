@@ -31,16 +31,6 @@ class QuizService(
         return quizRepository.findAll()
     }
 
-    fun createQuiz(quiz: Quiz, arr: Array<String>): Quiz {
-        val quiz = quizRepository.save(quiz)
-        for (example in arr) {
-            quiz.examples.add(createExample(example, quiz))
-        }
-        log.info("created new quiz:{}", quiz)
-
-        return quiz
-    }
-
     fun createQuiz(submitter: Member, createDto: QuizCreateDto): Quiz {
         var skill: Skill? = null
         if (createDto.skillId != null) {
@@ -63,7 +53,7 @@ class QuizService(
         return quiz
     }
 
-    fun createExample(text: String, quiz: Quiz): Example {
+    private fun createExample(text: String, quiz: Quiz): Example {
         val example = Example(text = text, quiz = quiz)
         return exampleRepository.save(example);
     }

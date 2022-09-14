@@ -3,7 +3,11 @@ package kr.quidev.submission.service
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.entity.Quiz
+import kr.quidev.quiz.domain.entity.QuizCreateDto
+import kr.quidev.quiz.domain.entity.Skill
+import kr.quidev.quiz.domain.enums.ProgrammingLanguage
 import kr.quidev.quiz.service.QuizService
+import kr.quidev.quiz.service.SkillService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.params.ParameterizedTest
@@ -31,6 +35,9 @@ internal class SubmissionServiceTest {
     @Autowired
     private lateinit var quizService: QuizService
 
+    @Autowired
+    private lateinit var skillService: SkillService
+
     private val log = LoggerFactory.getLogger(javaClass)
 
     @ParameterizedTest
@@ -40,10 +47,22 @@ internal class SubmissionServiceTest {
     fun submit(@AggregateWith(MemberAggregator::class) member: Member) {
         // Given
         val member = memberService.createMember(member)
+        val java = skillService.save(Skill(name = ProgrammingLanguage.JAVA.getValue()))
         val correctAnswer = "1234"
         val wrongAnswer = "1235"
-        val quiz = Quiz(description = "desc", answer = correctAnswer, explanation = "...", submitter = member)
-        quizService.createQuiz(quiz, arrayOf("candi1", "candi2", "candi3"))
+        val quiz = quizService.createQuiz(
+            submitter = member, createDto = QuizCreateDto(
+                description = "desc",
+                answer = correctAnswer,
+                skillId = java.id,
+                explanation = "explanation",
+                examples = arrayOf(
+                    "ex1",
+                    "ex2",
+                    "ex3"
+                )
+            )
+        )
 
         // When
         val submitResult = submissionService.submit(member, quiz.id!!, correctAnswer)
@@ -61,7 +80,6 @@ internal class SubmissionServiceTest {
         assertThat(submitResult2.result).isFalse
         val submission2 = submissionService.findById(submitResult2.submissionId)
         assertThat(submission2.answer).isEqualTo(wrongAnswer)
-
 
     }
 

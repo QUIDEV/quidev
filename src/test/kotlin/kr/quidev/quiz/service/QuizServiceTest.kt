@@ -2,7 +2,9 @@ package kr.quidev.quiz.service
 
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
-import kr.quidev.quiz.domain.entity.Quiz
+import kr.quidev.quiz.domain.entity.QuizCreateDto
+import kr.quidev.quiz.domain.entity.Skill
+import kr.quidev.quiz.domain.enums.ProgrammingLanguage
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,16 +23,38 @@ internal class QuizServiceTest {
     @Autowired
     private lateinit var memberService: MemberService
 
+    @Autowired
+    private lateinit var skillService: SkillService
+
     @Test
-    fun createTest() {
+    fun createQuizTest() {
+        // Given
         val findAllSize = quizService.findAll().size
         val member = memberService.createMember(Member(name = "name", password = "", email = ""))
+        val java = skillService.save(Skill(name = ProgrammingLanguage.JAVA.getValue()))
 
-        val quiz = Quiz(description = "desc", answer = "1234", explanation = "...", submitter = member)
-        quizService.createQuiz(quiz, arrayOf("candi1", "candi2", "candi3"))
+        val description = "desc"
+        val answer = "something answer"
 
+        // When
+        val quiz = quizService.createQuiz(
+            submitter = member, createDto = QuizCreateDto(
+                description = description,
+                answer = answer,
+                skillId = java.id,
+                explanation = "explanation",
+                examples = arrayOf(
+                    "ex1",
+                    "ex2",
+                    "ex3"
+                )
+            )
+        )
+
+        // Then
         val findById = quizService.findById(quiz.id!!).orElseThrow()
-        assertThat(findById.description).isEqualTo("desc")
+        assertThat(findById.description).isEqualTo(description)
+        assertThat(findById.answer).isEqualTo(answer)
         assertThat(findById.examples).hasSize(3)
         assertThat(quizService.findAll().size).isEqualTo(findAllSize + 1)
     }
