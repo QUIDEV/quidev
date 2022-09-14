@@ -62,7 +62,7 @@ internal class QuizApiControllerTest {
     @Test
     @DisplayName("create quiz test: expected situation")
     fun createQuiz() {
-        val user = userDetailService.loadUserByUsername(email)
+        val member = userDetailService.loadUserByUsername(email)
         val skill = skillService.save(Skill(id = null, parent = null, name = "java"))
 
         val description = "desc"
@@ -78,7 +78,7 @@ internal class QuizApiControllerTest {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.post("/api/quiz/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
+                .with(SecurityMockMvcRequestPostProcessors.user(member))
                 .content(mapper.writeValueAsString(quizCreateDto))
         )
         result.andExpect(MockMvcResultMatchers.status().isOk)
@@ -101,7 +101,7 @@ internal class QuizApiControllerTest {
     @Test
     @DisplayName("create quiz test: Description is not provided")
     fun createQuizNoDesc() {
-        val user = userDetailService.loadUserByUsername(email)
+        val member = userDetailService.loadUserByUsername(email)
         for (description in arrayOf("", " ", null)) {
             val quizCreateDto = QuizCreateDto(
                 description = description,
@@ -113,7 +113,7 @@ internal class QuizApiControllerTest {
             val result = mockMvc.perform(
                 MockMvcRequestBuilders.post("/api/quiz/new")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .with(SecurityMockMvcRequestPostProcessors.user(user))
+                    .with(SecurityMockMvcRequestPostProcessors.user(member))
                     .content(mapper.writeValueAsString(quizCreateDto))
             )
             result.andExpect(MockMvcResultMatchers.jsonPath("$.body").isEmpty)
