@@ -1,6 +1,7 @@
-package kr.quidev.quiz.domain.entity
+package kr.quidev.quiz.domain.dto
 
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 
 data class QuizCreateDto(
     @field:NotBlank
@@ -9,6 +10,7 @@ data class QuizCreateDto(
     val answer: String?,
     @field:NotBlank
     val explanation: String?,
+    @field:NotNull
     val skillId: Long?,
     val examples: Array<String>,
 ) {

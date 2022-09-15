@@ -1,6 +1,6 @@
 package kr.quidev.quiz.controller
 
-import kr.quidev.quiz.domain.entity.QuizDto
+import kr.quidev.quiz.domain.dto.PlayQuizDto
 import kr.quidev.quiz.repository.SkillRepository
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,13 +15,13 @@ class SkillApiController(
 ) {
 
     @GetMapping("{id}")
-    fun playQuiz(@PathVariable id: Long, model: Model): QuizDto? {
+    fun playQuiz(@PathVariable id: Long, model: Model): PlayQuizDto? {
         val skill = skillRepository.findById(id).orElseThrow()
         val quizzes = skill.quizzes
         if (quizzes.isEmpty()) {
             return null
         }
-        return QuizDto.of(quizzes.shuffled()[0])
+        return PlayQuizDto.of(quizzes.shuffled()[0])
     }
 
 }

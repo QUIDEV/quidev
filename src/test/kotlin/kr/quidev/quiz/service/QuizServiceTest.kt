@@ -2,12 +2,11 @@ package kr.quidev.quiz.service
 
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
-import kr.quidev.quiz.domain.entity.QuizCreateDto
+import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.domain.enums.ProgrammingLanguage
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired

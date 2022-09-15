@@ -1,9 +1,9 @@
 package kr.quidev.quiz.controller
 
 import kr.quidev.common.ApiResponse
+import kr.quidev.quiz.domain.dto.QuizCreateDto
+import kr.quidev.quiz.domain.dto.QuizDto
 import kr.quidev.quiz.domain.entity.Quiz
-import kr.quidev.quiz.domain.entity.QuizCreateDto
-import kr.quidev.quiz.domain.entity.QuizDto
 import kr.quidev.quiz.domain.response.QuizResponse
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.security.domain.MemberContext
@@ -21,14 +21,10 @@ class QuizApiController(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    /**
-     * It currently returns QuizDto which doesn't include answer
-     * it's for quiz solving not for management now
-     */
     @GetMapping("/{id}")
-    fun findQuiz(@PathVariable id: Long): QuizDto {
+    fun findQuiz(@PathVariable id: Long): ApiResponse {
         val quiz = quizService.findById(id)
-        return QuizDto.of(quiz);
+        return ApiResponse.ok(QuizDto.of(quiz))
     }
 
     @PostMapping("/submit/{id}")

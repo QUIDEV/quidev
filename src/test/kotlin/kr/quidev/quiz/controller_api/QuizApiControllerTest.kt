@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import kr.quidev.common.ApiResponse
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
-import kr.quidev.quiz.domain.entity.QuizCreateDto
+import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.quiz.service.SkillService
@@ -149,8 +149,9 @@ internal class QuizApiControllerTest {
         log.info("response: {}", result.andReturn().response.contentAsString)
         result
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(quiz.id))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(description))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.body.id").value(quiz.id))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.body.description").value(description))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.body.answer").value(quiz.answer))
     }
 
 }

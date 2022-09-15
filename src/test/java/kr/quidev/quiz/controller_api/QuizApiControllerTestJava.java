@@ -3,7 +3,7 @@ package kr.quidev.quiz.controller_api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.quidev.member.domain.entity.Member;
 import kr.quidev.member.service.MemberService;
-import kr.quidev.quiz.domain.entity.QuizCreateDto;
+import kr.quidev.quiz.domain.dto.QuizCreateDto;
 import kr.quidev.quiz.domain.entity.Skill;
 import kr.quidev.quiz.service.QuizService;
 import kr.quidev.quiz.service.SkillService;
