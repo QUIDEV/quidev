@@ -1,13 +1,10 @@
-package kr.quidev.quiz.controller
+package kr.quidev.quiz.controller_api
 
 import kr.quidev.common.ApiResponse
 import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.dto.QuizDto
-import kr.quidev.quiz.domain.entity.Quiz
-import kr.quidev.quiz.domain.response.QuizResponse
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.security.domain.MemberContext
-import kr.quidev.submission.service.SubmissionService
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -17,7 +14,6 @@ import javax.validation.Valid
 @RequestMapping("/api/quiz")
 class QuizApiController(
     val quizService: QuizService,
-    val submissionService: SubmissionService
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -27,18 +23,9 @@ class QuizApiController(
         return ApiResponse.ok(QuizDto.of(quiz))
     }
 
-    @PostMapping("/submit/{id}")
-    fun submitAnswer(
-        @PathVariable id: Long,
-        answer: String,
-        @AuthenticationPrincipal memberContext: MemberContext,
-    ): QuizResponse {
-        return submissionService.submit(memberContext.member, id, answer)
-    }
-
     @GetMapping
-    fun findAll(): MutableList<Quiz> {
-        return quizService.findAll()
+    fun findAll(): ApiResponse {
+        return ApiResponse.ok(quizService.findAll().map { quiz -> QuizDto.of(quiz) })
     }
 
     @PostMapping("new")

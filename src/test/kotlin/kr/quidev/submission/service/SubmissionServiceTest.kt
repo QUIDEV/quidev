@@ -21,7 +21,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
-@ActiveProfiles("test")
 @Transactional
 internal class SubmissionServiceTest {
 

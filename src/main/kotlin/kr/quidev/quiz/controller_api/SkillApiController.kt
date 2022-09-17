@@ -1,4 +1,4 @@
-package kr.quidev.quiz.controller
+package kr.quidev.quiz.controller_api
 
 import kr.quidev.quiz.domain.dto.PlayQuizDto
 import kr.quidev.quiz.repository.SkillRepository

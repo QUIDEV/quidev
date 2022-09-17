@@ -35,7 +35,7 @@ class Quiz(
     @UpdateTimestamp
     var updatedDate: LocalDateTime? = null
 
-    @OneToMany(mappedBy = "quiz")
+    @OneToMany(mappedBy = "quiz", orphanRemoval = true)
     val examples = mutableListOf<Example>()
 
     override fun toString(): String {

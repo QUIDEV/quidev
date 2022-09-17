@@ -25,7 +25,7 @@ class QuizService(
         return quizRepository.findById(id).orElseThrow()
     }
 
-    fun findAll(): MutableList<Quiz> {
+    fun findAll(): List<Quiz> {
         return quizRepository.findAll()
     }
 

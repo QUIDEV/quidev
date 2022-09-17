@@ -1,7 +1,7 @@
 package kr.quidev.submission.service
 
 import kr.quidev.member.domain.entity.Member
-import kr.quidev.quiz.domain.response.QuizResponse
+import kr.quidev.quiz.domain.response.QuizSubmitResponse
 import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.submission.dao.SubmissionRepository
 import kr.quidev.submission.domain.Submission
@@ -15,7 +15,7 @@ class SubmissionService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    fun submit(member: Member, quizId: Long, answer: String): QuizResponse {
+    fun submit(member: Member, quizId: Long, answer: String): QuizSubmitResponse {
         val quiz = quizRepository.findById(quizId).orElseThrow()
         val result = quiz.answer == answer
         if (result) {
@@ -25,7 +25,7 @@ class SubmissionService(
         val submission = Submission(quiz, member, result, answer)
         submissionRepository.save(submission)
 
-        return QuizResponse.of(submission.id!!, result, quiz.explanation)
+        return QuizSubmitResponse.of(submission.id!!, result, quiz.explanation)
     }
 
     fun findById(id: Long): Submission {

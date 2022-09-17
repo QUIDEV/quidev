@@ -7,14 +7,13 @@ import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.entity.Skill
+import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.quiz.service.SkillService
 import kr.quidev.security.service.CustomUserDetailsService
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
+import org.hamcrest.Matchers.*
+import org.junit.jupiter.api.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -23,7 +22,8 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.context.WebApplicationContext
 import javax.transaction.Transactional
 
@@ -54,6 +54,9 @@ internal class QuizApiControllerTest {
     @Autowired
     lateinit var memberService: MemberService
 
+    @Autowired
+    lateinit var quizRepository: QuizRepository
+
     val email = "shane@park.dev"
     private var member: Member? = null
     private var skill: Skill? = null
@@ -62,6 +65,11 @@ internal class QuizApiControllerTest {
     fun beforeAll() {
         member = memberService.createMember(Member(name = "name", password = "pass", email = email))
         skill = skillService.save(Skill(id = null, parent = null, name = "java"))
+    }
+
+    @BeforeEach
+    fun beforeEach() {
+        quizRepository.deleteAll()
     }
 
     @Test
@@ -84,7 +92,7 @@ internal class QuizApiControllerTest {
                 .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizCreateDto))
         )
-        result.andExpect(MockMvcResultMatchers.status().isOk)
+        result.andExpect(status().isOk)
 
         val content = result.andReturn().response.contentAsString
         log.info("content : {}", content)
@@ -118,9 +126,9 @@ internal class QuizApiControllerTest {
                     .with(SecurityMockMvcRequestPostProcessors.user(user))
                     .content(mapper.writeValueAsString(quizCreateDto))
             )
-            result.andExpect(MockMvcResultMatchers.jsonPath("$.body").isEmpty)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.error").isNotEmpty)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("400"))
+            result.andExpect(jsonPath("$.body").isEmpty)
+                .andExpect(jsonPath("$.error").isNotEmpty)
+                .andExpect(jsonPath("$.status").value("400"))
 
             log.info(result.andReturn().response.contentAsString)
         }
@@ -148,10 +156,49 @@ internal class QuizApiControllerTest {
         )
         log.info("response: {}", result.andReturn().response.contentAsString)
         result
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.body.id").value(quiz.id))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.body.description").value(description))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.body.answer").value(quiz.answer))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.body.id").value(quiz.id))
+            .andExpect(jsonPath("$.body.description").value(description))
+            .andExpect(jsonPath("$.body.answer").value(quiz.answer))
+    }
+
+    @Test
+    fun findAllQuizTest() {
+        // Given
+        val quiz1 = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = "desc1",
+                answer = "answer1",
+                explanation = "explanation1",
+                examples = arrayOf("example1", "example2", "example3"),
+                skillId = skill!!.id
+            )
+        )
+        val quiz2 = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = "desc2",
+                answer = "answer2",
+                explanation = "explanation2",
+                examples = arrayOf("example1", "example2", "example3"),
+                skillId = skill!!.id
+            )
+        )
+
+        // Expected
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/quiz")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user("randomUser"))
+        )
+        log.info("response: {}", result.andReturn().response.contentAsString)
+        result
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.body").isArray)
+            .andExpect(jsonPath("$.body.length()", `is`(2)))
+            .andExpect(jsonPath("$.body[0].id").value(quiz1.id))
+            .andExpect(jsonPath("$.body[0].answer").value(quiz1.answer))
+            .andExpect(jsonPath("$.body[1].id").value(quiz2.id))
+            .andExpect(jsonPath("$.body[1].explanation").value(quiz2.explanation))
     }
 
 }
