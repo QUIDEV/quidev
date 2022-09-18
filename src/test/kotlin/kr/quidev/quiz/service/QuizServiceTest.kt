@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
+import org.springframework.data.domain.Pageable
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
@@ -50,7 +50,7 @@ internal class QuizServiceTest {
     @Test
     fun createQuizTest() {
         // Given
-        val findAllSize = quizService.findAll().size
+        val findAllSize = quizRepository.findAll().size
 
         val description = "desc"
         val answer = "something answer"
@@ -75,7 +75,7 @@ internal class QuizServiceTest {
         assertThat(findById.description).isEqualTo(description)
         assertThat(findById.answer).isEqualTo(answer)
         assertThat(findById.examples).hasSize(3)
-        assertThat(quizService.findAll().size).isEqualTo(findAllSize + 1)
+        assertThat(quizRepository.findAll().size).isEqualTo(findAllSize + 1)
     }
 
     @Test
@@ -100,7 +100,7 @@ internal class QuizServiceTest {
         )
 
         // Then
-        assertThat(quizService.findAll()).hasSize(1)
+        assertThat(quizRepository.findAll()).hasSize(1)
         val findById = quizService.findById(quiz.id!!)
         assertThat(findById).isNotNull
         assertThat(findById.id).isEqualTo(quiz.id)
@@ -110,49 +110,35 @@ internal class QuizServiceTest {
     @Test
     fun findAllTest() {
         // Given
-        val quiz1Dto = QuizCreateDto(
-            description = "desc",
-            answer = "something answer",
-            skillId = java!!.id,
-            explanation = "explanation",
-            examples = arrayOf(
-                "ex1",
-                "ex2",
-                "ex3"
+        val totalSize = 100L
+        for (i in 1..totalSize) {
+            quizService.createQuiz(
+                submitter = member!!, createDto = QuizCreateDto(
+                    description = "desc$i",
+                    answer = "something answer$i",
+                    skillId = java!!.id,
+                    explanation = "explanation$i",
+                    examples = arrayOf(
+                        "ex1",
+                        "ex2",
+                        "ex3"
+                    )
+                )
             )
-        )
-        val quiz2Dto = QuizCreateDto(
-            description = "desc",
-            answer = "something answer",
-            skillId = java!!.id,
-            explanation = "explanation",
-            examples = arrayOf(
-                "ex1",
-                "ex2",
-                "ex3"
-            )
-        )
-        val quiz3Dto = QuizCreateDto(
-            description = "desc",
-            answer = "something answer",
-            skillId = java!!.id,
-            explanation = "explanation",
-            examples = arrayOf(
-                "ex1",
-                "ex2",
-                "ex3"
-            )
-        )
-        val quiz1 = quizService.createQuiz(submitter = member!!, createDto = quiz1Dto)
-        val quiz2 = quizService.createQuiz(submitter = member!!, createDto = quiz2Dto)
-        val quiz3 = quizService.createQuiz(submitter = member!!, createDto = quiz3Dto)
+        }
 
         // When
-        val all = quizService.findAll()
+        val findAllPageSize20 = quizService.findAll(Pageable.ofSize(20))
+        val findAllPageSize10WithPage1 = quizService.findAll(Pageable.ofSize(10).withPage(1))
 
         // Then
-        assertThat(all).hasSize(3)
-        assertThat(all).containsExactlyInAnyOrder(quiz1, quiz2, quiz3)
+        assertThat(findAllPageSize20).hasSize(20)
+        assertThat(findAllPageSize20.totalElements).isEqualTo(totalSize)
+        assertThat(findAllPageSize20.totalPages).isEqualTo((totalSize - 1) / 20 + 1)
+
+        assertThat(findAllPageSize10WithPage1).hasSize(10)
+        assertThat(findAllPageSize10WithPage1.content[0].description).isEqualTo("desc11")
+
     }
 
 }

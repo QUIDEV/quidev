@@ -8,6 +8,8 @@ import kr.quidev.quiz.repository.ExampleRepository
 import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.quiz.repository.SkillRepository
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
 
@@ -25,8 +27,8 @@ class QuizService(
         return quizRepository.findById(id).orElseThrow()
     }
 
-    fun findAll(): List<Quiz> {
-        return quizRepository.findAll()
+    fun findAll(pageable: Pageable): Page<Quiz> {
+        return quizRepository.findAll(pageable)
     }
 
     fun createQuiz(submitter: Member, createDto: QuizCreateDto): Quiz {
@@ -50,7 +52,7 @@ class QuizService(
 
     private fun createExample(text: String, quiz: Quiz): Example {
         val example = Example(text = text, quiz = quiz)
-        return exampleRepository.save(example);
+        return exampleRepository.save(example)
     }
 
 }

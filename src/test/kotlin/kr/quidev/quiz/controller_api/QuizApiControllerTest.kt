@@ -6,13 +6,14 @@ import kr.quidev.common.ApiResponse
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
+import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.quiz.service.SkillService
 import kr.quidev.security.service.CustomUserDetailsService
 import org.assertj.core.api.Assertions.assertThat
-import org.hamcrest.Matchers.*
+import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -165,24 +166,21 @@ internal class QuizApiControllerTest {
     @Test
     fun findAllQuizTest() {
         // Given
-        val quiz1 = quizService.createQuiz(
-            submitter = member!!, createDto = QuizCreateDto(
-                description = "desc1",
-                answer = "answer1",
-                explanation = "explanation1",
-                examples = arrayOf("example1", "example2", "example3"),
-                skillId = skill!!.id
+        val quizzes = mutableListOf<Quiz>()
+        val size = 50
+        for (i in 1..size) {
+            quizzes.add(
+                quizService.createQuiz(
+                    submitter = member!!, createDto = QuizCreateDto(
+                        description = "desc$i",
+                        answer = "answer$i",
+                        explanation = "explanation$i",
+                        examples = arrayOf("example1", "example2", "example3"),
+                        skillId = skill!!.id
+                    )
+                )
             )
-        )
-        val quiz2 = quizService.createQuiz(
-            submitter = member!!, createDto = QuizCreateDto(
-                description = "desc2",
-                answer = "answer2",
-                explanation = "explanation2",
-                examples = arrayOf("example1", "example2", "example3"),
-                skillId = skill!!.id
-            )
-        )
+        }
 
         // Expected
         val result = mockMvc.perform(
@@ -193,12 +191,13 @@ internal class QuizApiControllerTest {
         log.info("response: {}", result.andReturn().response.contentAsString)
         result
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.body").isArray)
-            .andExpect(jsonPath("$.body.length()", `is`(2)))
-            .andExpect(jsonPath("$.body[0].id").value(quiz1.id))
-            .andExpect(jsonPath("$.body[0].answer").value(quiz1.answer))
-            .andExpect(jsonPath("$.body[1].id").value(quiz2.id))
-            .andExpect(jsonPath("$.body[1].explanation").value(quiz2.explanation))
+            .andExpect(jsonPath("$.body.totalElements").value(size))
+            .andExpect(jsonPath("$.body.content").isArray)
+            .andExpect(jsonPath("$.body.content.length()", `is`(10)))
+            .andExpect(jsonPath("$.body.content[0].id").value(quizzes[0].id))
+            .andExpect(jsonPath("$.body.content[0].answer").value(quizzes[0].answer))
+            .andExpect(jsonPath("$.body.content[1].id").value(quizzes[1].id))
+            .andExpect(jsonPath("$.body.content[1].explanation").value(quizzes[1].explanation))
     }
 
 }
