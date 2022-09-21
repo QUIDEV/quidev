@@ -3,6 +3,7 @@ package kr.quidev.quiz.controller_api
 import kr.quidev.common.ApiResponse
 import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.dto.QuizDto
+import kr.quidev.quiz.domain.dto.QuizSearch
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.security.domain.MemberContext
 import org.slf4j.LoggerFactory
@@ -37,6 +38,13 @@ class QuizApiController(
     ): ApiResponse {
         return ApiResponse.ok(
             quizService.findAll(pageable).map { quiz -> QuizDto.of(quiz) }
+        )
+    }
+
+    @GetMapping("search")
+    fun searchQuiz(@ModelAttribute quizSearch: QuizSearch): ApiResponse {
+        return ApiResponse.ok(
+            quizService.searchQuiz(quizSearch)
         )
     }
 

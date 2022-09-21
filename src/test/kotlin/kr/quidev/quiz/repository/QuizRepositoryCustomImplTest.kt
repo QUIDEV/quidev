@@ -2,6 +2,7 @@ package kr.quidev.quiz.repository
 
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.repository.MemberRepository
+import kr.quidev.quiz.domain.dto.QuizSearch
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.domain.entity.Skill
 import org.assertj.core.api.Assertions.assertThat
@@ -39,7 +40,30 @@ internal class QuizRepositoryCustomImplTest {
 
         val list = quizRepository.getList(10, 1)
         assertThat(list).hasSize(10)
-        assertThat(list[0].description).isEqualTo("desc11")
+        assertThat(list[0].description).isEqualTo("desc25")
+
+        val page0 = quizRepository.getList(10, 0)
+        assertThat(page0[0].description).isEqualTo("desc35")
+    }
+
+    @Test
+    fun searchQuizTest() {
+        val member = Member(null, "pass", "name", "em", "role")
+        memberRepository.save(member)
+
+        val skill = Skill(null, null, "name")
+        skillRepository.save(skill)
+
+        for (i in 1..35) {
+            quizRepository.save(Quiz("desc$i", "answ", skill, "expl", member))
+        }
+
+        val list = quizRepository.searchQuiz(QuizSearch(page = 1, pageSize = 10))
+        assertThat(list).hasSize(10)
+        assertThat(list[0].description).isEqualTo("desc25")
+
+        val page0 = quizRepository.searchQuiz(QuizSearch())
+        assertThat(page0[0].description).isEqualTo("desc35")
     }
 
 }

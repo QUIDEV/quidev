@@ -2,6 +2,7 @@ package kr.quidev.quiz.service
 
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.quiz.domain.dto.QuizCreateDto
+import kr.quidev.quiz.domain.dto.QuizSearch
 import kr.quidev.quiz.domain.entity.Example
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.repository.ExampleRepository
@@ -53,6 +54,10 @@ class QuizService(
     private fun createExample(text: String, quiz: Quiz): Example {
         val example = Example(text = text, quiz = quiz)
         return exampleRepository.save(example)
+    }
+
+    fun searchQuiz(quizSearch: QuizSearch): List<Quiz> {
+        return quizRepository.searchQuiz(quizSearch)
     }
 
 }

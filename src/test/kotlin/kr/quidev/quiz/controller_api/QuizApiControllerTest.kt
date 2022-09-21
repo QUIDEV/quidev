@@ -200,4 +200,40 @@ internal class QuizApiControllerTest {
             .andExpect(jsonPath("$.body.content[1].explanation").value(quizzes[1].explanation))
     }
 
+    @Test
+    fun searchQuizTest() {
+        // Given
+        val quizzes = mutableListOf<Quiz>()
+        val size = 50
+        for (i in 1..size) {
+            quizzes.add(
+                quizService.createQuiz(
+                    submitter = member!!, createDto = QuizCreateDto(
+                        description = "desc$i",
+                        answer = "answer$i",
+                        explanation = "explanation$i",
+                        examples = arrayOf("example1", "example2", "example3"),
+                        skillId = skill!!.id
+                    )
+                )
+            )
+        }
+
+        // Expected
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/quiz/search")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user("randomUser"))
+        )
+        log.info("response: {}", result.andReturn().response.contentAsString)
+        result
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.body").isArray)
+            .andExpect(jsonPath("$.body.length()", `is`(10)))
+            .andExpect(jsonPath("$.body[0].id").value(quizzes[49].id))
+            .andExpect(jsonPath("$.body[0].answer").value(quizzes[49].answer))
+            .andExpect(jsonPath("$.body[1].id").value(quizzes[48].id))
+            .andExpect(jsonPath("$.body[1].explanation").value(quizzes[48].explanation))
+    }
+
 }
