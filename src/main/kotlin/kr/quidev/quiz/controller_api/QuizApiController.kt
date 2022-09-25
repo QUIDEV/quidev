@@ -1,6 +1,6 @@
 package kr.quidev.quiz.controller_api
 
-import kr.quidev.common.ApiResponse
+import kr.quidev.common.dto.ApiResponse
 import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.dto.QuizDto
 import kr.quidev.quiz.domain.dto.QuizSearch
@@ -48,7 +48,7 @@ class QuizApiController(
         )
     }
 
-    @PostMapping("new")
+    @PostMapping
     fun createQuiz(
         @RequestBody @Valid createDto: QuizCreateDto,
         @AuthenticationPrincipal memberContext: MemberContext,
@@ -56,5 +56,7 @@ class QuizApiController(
         val quiz = quizService.createQuiz(memberContext.member, createDto)
         return ApiResponse.ok(mapOf(Pair("id", quiz.id)))
     }
+
+
 
 }

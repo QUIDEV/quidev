@@ -2,7 +2,7 @@ package kr.quidev.quiz.controller_api
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import kr.quidev.common.ApiResponse
+import kr.quidev.common.dto.ApiResponse
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
@@ -88,7 +88,7 @@ internal class QuizApiControllerTest {
             skillId = skill!!.id
         )
         val result = mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/quiz/new")
+            MockMvcRequestBuilders.post("/api/quiz")
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizCreateDto))
@@ -122,14 +122,14 @@ internal class QuizApiControllerTest {
                 skillId = null
             )
             val result = mockMvc.perform(
-                MockMvcRequestBuilders.post("/api/quiz/new")
+                MockMvcRequestBuilders.post("/api/quiz")
                     .contentType(MediaType.APPLICATION_JSON)
                     .with(SecurityMockMvcRequestPostProcessors.user(user))
                     .content(mapper.writeValueAsString(quizCreateDto))
             )
             result.andExpect(jsonPath("$.body").isEmpty)
                 .andExpect(jsonPath("$.error").isNotEmpty)
-                .andExpect(jsonPath("$.status").value("400"))
+                .andExpect(jsonPath("$.error.code").value("400"))
 
             log.info(result.andReturn().response.contentAsString)
         }

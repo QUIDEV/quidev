@@ -1,5 +1,7 @@
-package kr.quidev.common
+package kr.quidev.common.advice
 
+import kr.quidev.common.dto.ApiResponse
+import kr.quidev.common.dto.Error
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -18,8 +20,16 @@ class ExceptionControllerAdvice {
     @ExceptionHandler
     fun methodArgumentNotValidHandler(e: MethodArgumentNotValidException): ApiResponse {
         val validation = e.fieldErrors.map { e ->
-            ApiResponse.ValidationResult(e.field, e.defaultMessage ?: "")
+            Error.ValidationResult(field = e.field, message = e.defaultMessage)
         }
-        return ApiResponse.error(status = 400, validation = validation, message = "invalid request")
+        return ApiResponse.fail(code = 400, message = "validation failed", validation = validation)
     }
+
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    @ExceptionHandler
+    fun noSuchElementExceptionHandler(e: NoSuchElementException): ApiResponse {
+        return ApiResponse.fail(code = 400, message = "invalid request")
+    }
+
 }

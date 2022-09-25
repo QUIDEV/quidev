@@ -68,7 +68,7 @@ public class QuizApiControllerTestJava implements UserDetailsService {
         ResultActions result = MockMvcBuilders.webAppContextSetup(context)
                 .apply(springSecurity())
                 .build().perform(
-                        MockMvcRequestBuilders.post("/api/quiz/new")
+                        MockMvcRequestBuilders.post("/api/quiz")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(SecurityMockMvcRequestPostProcessors.user(user))
                                 .content(mapper.writeValueAsString(quizCreateDto))

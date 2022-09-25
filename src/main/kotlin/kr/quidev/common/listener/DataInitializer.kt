@@ -1,4 +1,4 @@
-package kr.quidev.listener
+package kr.quidev.common.listener
 
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.repository.MemberRepository
