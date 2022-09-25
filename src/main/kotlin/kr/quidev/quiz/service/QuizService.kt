@@ -2,12 +2,14 @@ package kr.quidev.quiz.service
 
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.quiz.domain.dto.QuizCreateDto
+import kr.quidev.quiz.domain.dto.QuizEditDto
 import kr.quidev.quiz.domain.dto.QuizSearch
 import kr.quidev.quiz.domain.entity.Example
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.repository.ExampleRepository
 import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.quiz.repository.SkillRepository
+import kr.quidev.security.domain.MemberContext
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -51,13 +53,29 @@ class QuizService(
         return quiz
     }
 
+    fun searchQuiz(quizSearch: QuizSearch): List<Quiz> {
+        return quizRepository.searchQuiz(quizSearch)
+    }
+
+    fun edit(memberContext: MemberContext, id: Long, edit: QuizEditDto) {
+        val original = quizRepository.findById(id).orElseThrow()
+
+        if (original.submitter.id != memberContext.member.id) {
+            throw IllegalAccessException("not allowed to edit")
+        }
+
+        original.description = edit.description!!
+        original.answer = edit.answer!!
+        original.explanation = edit.explanation!!
+        original.examples.clear()
+        for (example in edit.examples) {
+            original.examples.add(createExample(example, original))
+        }
+    }
+
     private fun createExample(text: String, quiz: Quiz): Example {
         val example = Example(text = text, quiz = quiz)
         return exampleRepository.save(example)
-    }
-
-    fun searchQuiz(quizSearch: QuizSearch): List<Quiz> {
-        return quizRepository.searchQuiz(quizSearch)
     }
 
 }

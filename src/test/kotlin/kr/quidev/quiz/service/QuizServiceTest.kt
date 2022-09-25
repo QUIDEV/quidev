@@ -3,14 +3,17 @@ package kr.quidev.quiz.service
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
+import kr.quidev.quiz.domain.dto.QuizEditDto
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.domain.enums.ProgrammingLanguage
 import kr.quidev.quiz.repository.QuizRepository
+import kr.quidev.security.domain.MemberContext
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.Pageable
@@ -138,7 +141,53 @@ internal class QuizServiceTest {
 
         assertThat(findAllPageSize10WithPage1).hasSize(10)
         assertThat(findAllPageSize10WithPage1.content[0].description).isEqualTo("desc11")
+    }
+
+    @Test
+    fun editQuizTest() {
+        // Given
+        val quiz = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = "desc",
+                answer = "something answer",
+                skillId = java!!.id,
+                explanation = "explanation",
+                examples = arrayOf(
+                    "ex1",
+                    "ex2",
+                    "ex3"
+                )
+            )
+        )
+
+        val updatedDescription = "changed desc"
+        val updatedAnswer = "changed answer"
+        val updatedExplanation = "updated explanation"
+        val examples = arrayOf("edited ex1", "edited ex2", "edited ex3")
+        val quizEditDto = QuizEditDto(
+            description = updatedDescription,
+            answer = updatedAnswer,
+            explanation = updatedExplanation,
+            examples = examples
+        )
+
+        // When
+        val memberContext = Mockito.mock(MemberContext::class.java)
+        Mockito.`when`(memberContext.member).thenReturn(member)
+
+        quizService.edit(memberContext, quiz.id!!, quizEditDto)
+
+        // Then
+        val findById = quizService.findById(quiz.id!!)
+        assertThat(findById.description).isEqualTo(updatedDescription)
+        assertThat(findById.answer).isEqualTo(updatedAnswer)
+        assertThat(findById.explanation).isEqualTo(updatedExplanation)
+        assertThat(findById.examples).hasSize(examples.size)
+        for (i in examples.indices) {
+            assertThat(findById.examples[i].text).isEqualTo(examples[i])
+        }
 
     }
+
 
 }
