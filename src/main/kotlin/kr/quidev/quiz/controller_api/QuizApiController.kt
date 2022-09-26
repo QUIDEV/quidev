@@ -68,4 +68,14 @@ class QuizApiController(
         return ApiResponse.ok(QuizDto.of(quiz))
     }
 
+    @DeleteMapping("/{id}")
+    fun deleteQuiz(
+        @PathVariable id: Long,
+        @AuthenticationPrincipal memberContext: MemberContext,
+    ): ApiResponse {
+        quizService.deleteQuiz(memberContext = memberContext, id = id)
+        return ApiResponse.ok(true)
+
+    }
+
 }

@@ -9,10 +9,7 @@ import kr.quidev.quiz.domain.enums.ProgrammingLanguage
 import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.security.domain.MemberContext
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.*
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -186,6 +183,36 @@ internal class QuizServiceTest {
         for (i in examples.indices) {
             assertThat(findById.examples[i].text).isEqualTo(examples[i])
         }
+
+    }
+
+    @Test
+    @DisplayName("Delete quiz")
+    fun test() {
+        // Given
+        val quiz = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = "desc",
+                answer = "something answer",
+                skillId = java!!.id,
+                explanation = "explanation",
+                examples = arrayOf(
+                    "ex1",
+                    "ex2",
+                    "ex3"
+                )
+            )
+        )
+
+        // When
+        val memberContext = Mockito.mock(MemberContext::class.java)
+        Mockito.`when`(memberContext.member).thenReturn(member)
+
+        quizService.deleteQuiz(memberContext = memberContext, id = quiz.id!!)
+
+        // Then
+        assertThat(quizRepository.findById(quiz.id!!)).isEmpty
+        assertThat(quizRepository.findAll()).isEmpty()
 
     }
 

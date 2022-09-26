@@ -79,4 +79,12 @@ class QuizService(
         return exampleRepository.save(example)
     }
 
+    fun deleteQuiz(memberContext: MemberContext, id: Long) {
+        val quiz = quizRepository.findById(id).orElseThrow()
+        if(quiz.submitter.id != memberContext.member.id) {
+            throw IllegalAccessException("not allowed to delete")
+        }
+        quizRepository.delete(quiz)
+    }
+
 }

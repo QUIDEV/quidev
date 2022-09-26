@@ -286,4 +286,32 @@ internal class QuizApiControllerTest {
 
     }
 
+    @Test
+    fun deleteQuizTest() {
+        // Given
+        val quiz = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = "desc",
+                answer = "answer",
+                explanation = "explanation",
+                examples = arrayOf("example1", "example2", "example3"),
+                skillId = skill!!.id
+            )
+        )
+
+        val user = userDetailService.loadUserByUsername(member!!.email)
+
+        // Expected
+        mockMvc.perform(
+            MockMvcRequestBuilders.delete("/api/quiz/{id}", quiz.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
+        ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.body").value(true))
+
+        quizRepository.findById(quiz.id!!).ifPresent {
+            fail("Quiz should be deleted")
+        }
+    }
+
 }
