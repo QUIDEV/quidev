@@ -57,7 +57,7 @@ class QuizService(
         return quizRepository.searchQuiz(quizSearch)
     }
 
-    fun edit(memberContext: MemberContext, id: Long, edit: QuizEditDto) {
+    fun edit(memberContext: MemberContext, id: Long, edit: QuizEditDto): Quiz {
         val original = quizRepository.findById(id).orElseThrow()
 
         if (original.submitter.id != memberContext.member.id) {
@@ -71,6 +71,7 @@ class QuizService(
         for (example in edit.examples) {
             original.examples.add(createExample(example, original))
         }
+        return original
     }
 
     private fun createExample(text: String, quiz: Quiz): Example {

@@ -3,6 +3,7 @@ package kr.quidev.quiz.controller_api
 import kr.quidev.common.dto.ApiResponse
 import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.dto.QuizDto
+import kr.quidev.quiz.domain.dto.QuizEditDto
 import kr.quidev.quiz.domain.dto.QuizSearch
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.security.domain.MemberContext
@@ -21,6 +22,15 @@ class QuizApiController(
     val quizService: QuizService,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
+
+    @PostMapping
+    fun createQuiz(
+        @RequestBody @Valid createDto: QuizCreateDto,
+        @AuthenticationPrincipal memberContext: MemberContext,
+    ): ApiResponse {
+        val quiz = quizService.createQuiz(memberContext.member, createDto)
+        return ApiResponse.ok(mapOf(Pair("id", quiz.id)))
+    }
 
     @GetMapping("/{id}")
     fun findQuiz(@PathVariable id: Long): ApiResponse {
@@ -48,15 +58,14 @@ class QuizApiController(
         )
     }
 
-    @PostMapping
-    fun createQuiz(
-        @RequestBody @Valid createDto: QuizCreateDto,
+    @PatchMapping("/{id}")
+    fun editQuiz(
+        @PathVariable id: Long,
+        @RequestBody @Valid editDto: QuizEditDto,
         @AuthenticationPrincipal memberContext: MemberContext,
     ): ApiResponse {
-        val quiz = quizService.createQuiz(memberContext.member, createDto)
-        return ApiResponse.ok(mapOf(Pair("id", quiz.id)))
+        val quiz = quizService.edit(memberContext = memberContext, id = id, edit = editDto)
+        return ApiResponse.ok(QuizDto.of(quiz))
     }
-
-
 
 }

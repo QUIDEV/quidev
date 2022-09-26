@@ -6,6 +6,7 @@ import kr.quidev.common.dto.ApiResponse
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
+import kr.quidev.quiz.domain.dto.QuizEditDto
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.repository.QuizRepository
@@ -234,6 +235,55 @@ internal class QuizApiControllerTest {
             .andExpect(jsonPath("$.body[0].answer").value(quizzes[49].answer))
             .andExpect(jsonPath("$.body[1].id").value(quizzes[48].id))
             .andExpect(jsonPath("$.body[1].explanation").value(quizzes[48].explanation))
+    }
+
+    @Test
+    fun editQuizTest() {
+        // Given
+        val quiz = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = "desc",
+                answer = "answer",
+                explanation = "explanation",
+                examples = arrayOf("example1", "example2", "example3"),
+                skillId = skill!!.id
+            )
+        )
+        val quizEditDto = QuizEditDto(
+            description = "desc2",
+            answer = "answer2",
+            explanation = "explanation2",
+            examples = arrayOf("ex1", "ex2", "ex3"),
+        )
+
+        val user = userDetailService.loadUserByUsername(member!!.email)
+
+        // Expected
+        mockMvc.perform(
+            MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
+                .content(mapper.writeValueAsString(quizEditDto))
+        ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.body.id").value(quiz.id))
+            .andExpect(jsonPath("$.body.answer").value(quiz.answer))
+            .andExpect(jsonPath("$.body.description").value(quizEditDto.description))
+            .andExpect(jsonPath("$.body.explanation").value(quizEditDto.explanation))
+            .andExpect(jsonPath("$.body.examples").isArray)
+            .andExpect(jsonPath("$.body.examples.length()", `is`(3)))
+            .andExpect(jsonPath("$.body.examples[0]").value(quizEditDto.examples[0]))
+            .andExpect(jsonPath("$.body.examples[1]").value(quizEditDto.examples[1]))
+            .andExpect(jsonPath("$.body.examples[2]").value(quizEditDto.examples[2]))
+
+        val updated = quizService.findById(quiz.id!!)
+        assertThat(updated.description).isEqualTo(quizEditDto.description)
+        assertThat(updated.answer).isEqualTo(quizEditDto.answer)
+        assertThat(updated.explanation).isEqualTo(quizEditDto.explanation)
+
+        updated.examples.forEachIndexed { index, example ->
+            assertThat(example.text).isEqualTo(quizEditDto.examples[index])
+        }
+
     }
 
 }
