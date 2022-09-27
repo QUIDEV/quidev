@@ -1,8 +1,8 @@
-package kr.quidev.listener
+package kr.quidev.common.listener
 
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.repository.MemberRepository
-import kr.quidev.quiz.domain.entity.QuizCreateDto
+import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.domain.enums.ProgrammingLanguage.*
 import kr.quidev.quiz.repository.SkillRepository

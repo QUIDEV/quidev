@@ -2,8 +2,7 @@ package kr.quidev.submission.service
 
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
-import kr.quidev.quiz.domain.entity.Quiz
-import kr.quidev.quiz.domain.entity.QuizCreateDto
+import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.domain.enums.ProgrammingLanguage
 import kr.quidev.quiz.service.QuizService
@@ -22,7 +21,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
-@ActiveProfiles("test")
 @Transactional
 internal class SubmissionServiceTest {
 

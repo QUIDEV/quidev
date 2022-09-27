@@ -17,21 +17,13 @@ class Quiz(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
-    var skill: Skill?,
+    var skill: Skill,
     var explanation: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "submitter_id")
     val submitter: Member
 ) {
-    constructor(description: String, answer: String, explanation: String, submitter: Member) :
-            this(
-                description = description,
-                answer = answer,
-                submitter = submitter,
-                skill = null,
-                explanation = explanation
-            )
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +35,7 @@ class Quiz(
     @UpdateTimestamp
     var updatedDate: LocalDateTime? = null
 
-    @OneToMany(mappedBy = "quiz")
+    @OneToMany(mappedBy = "quiz", orphanRemoval = true)
     val examples = mutableListOf<Example>()
 
     override fun toString(): String {

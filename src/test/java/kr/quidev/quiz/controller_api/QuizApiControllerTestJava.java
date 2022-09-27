@@ -3,7 +3,7 @@ package kr.quidev.quiz.controller_api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.quidev.member.domain.entity.Member;
 import kr.quidev.member.service.MemberService;
-import kr.quidev.quiz.domain.entity.QuizCreateDto;
+import kr.quidev.quiz.domain.dto.QuizCreateDto;
 import kr.quidev.quiz.domain.entity.Skill;
 import kr.quidev.quiz.service.QuizService;
 import kr.quidev.quiz.service.SkillService;
@@ -68,7 +68,7 @@ public class QuizApiControllerTestJava implements UserDetailsService {
         ResultActions result = MockMvcBuilders.webAppContextSetup(context)
                 .apply(springSecurity())
                 .build().perform(
-                        MockMvcRequestBuilders.post("/api/quiz/new")
+                        MockMvcRequestBuilders.post("/api/quiz")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(SecurityMockMvcRequestPostProcessors.user(user))
                                 .content(mapper.writeValueAsString(quizCreateDto))
