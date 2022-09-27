@@ -75,7 +75,6 @@ class QuizApiController(
     ): ApiResponse {
         quizService.deleteQuiz(memberContext = memberContext, id = id)
         return ApiResponse.ok(true)
-
     }
 
 }

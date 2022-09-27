@@ -1,4 +1,4 @@
-package kr.quidev.common
+package kr.quidev.common.config
 
 import com.p6spy.engine.logging.Category
 import com.p6spy.engine.spy.P6SpyOptions
@@ -10,7 +10,7 @@ import java.util.*
 import javax.annotation.PostConstruct
 
 @Configuration
-class PrettySqlFormat : MessageFormattingStrategy {
+class P6SpyPrettySqlFormat : MessageFormattingStrategy {
 
     @PostConstruct
     fun setLogMessageFormat() {

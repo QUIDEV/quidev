@@ -3,6 +3,7 @@ package kr.quidev.quiz.controller_api
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import kr.quidev.common.dto.ApiResponse
+import kr.quidev.common.enums.ErrorCode
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
@@ -61,11 +62,13 @@ internal class QuizApiControllerTest {
 
     val email = "shane@park.dev"
     private var member: Member? = null
+    private var member2: Member? = null
     private var skill: Skill? = null
 
     @BeforeAll
     fun beforeAll() {
         member = memberService.createMember(Member(name = "name", password = "pass", email = email))
+        member2 = memberService.createMember(Member(name = "name2", password = "pass", email = email + 2))
         skill = skillService.save(Skill(id = null, parent = null, name = "java"))
     }
 
@@ -283,7 +286,41 @@ internal class QuizApiControllerTest {
         updated.examples.forEachIndexed { index, example ->
             assertThat(example.text).isEqualTo(quizEditDto.examples[index])
         }
+    }
 
+    @Test
+    @DisplayName("try to edit a quiz which is not mine")
+    fun editQuizFailTest() {
+        // Given
+        val quiz = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = "desc",
+                answer = "answer",
+                explanation = "explanation",
+                examples = arrayOf("example1", "example2", "example3"),
+                skillId = skill!!.id
+            )
+        )
+        val quizEditDto = QuizEditDto(
+            description = "desc2",
+            answer = "answer2",
+            explanation = "explanation2",
+            examples = arrayOf("ex1", "ex2", "ex3"),
+        )
+
+        val user = userDetailService.loadUserByUsername(member2!!.email)
+
+        // Expected
+        mockMvc.perform(
+            MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
+                .content(mapper.writeValueAsString(quizEditDto))
+        ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.body").isEmpty)
+            .andExpect(jsonPath("$.error").isNotEmpty)
+            .andExpect(jsonPath("$.error.code").value(ErrorCode.NOT_AUTHORIZED.code))
+            .andExpect(jsonPath("$.error.message").value(ErrorCode.NOT_AUTHORIZED.message))
     }
 
     @Test
@@ -312,6 +349,36 @@ internal class QuizApiControllerTest {
         quizRepository.findById(quiz.id!!).ifPresent {
             fail("Quiz should be deleted")
         }
+    }
+
+    @Test
+    @DisplayName("try to delete a quiz which is not mine")
+    fun deleteQuizNotAuthorizedTest() {
+        // Given
+        val quiz = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = "desc",
+                answer = "answer",
+                explanation = "explanation",
+                examples = arrayOf("example1", "example2", "example3"),
+                skillId = skill!!.id
+            )
+        )
+
+        val user2 = userDetailService.loadUserByUsername(member2!!.email)
+
+        // Expected
+        mockMvc.perform(
+            MockMvcRequestBuilders.delete("/api/quiz/{id}", quiz.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(user2))
+        ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.body").isEmpty)
+            .andExpect(jsonPath("$.error").isNotEmpty)
+            .andExpect(jsonPath("$.error.code").value(ErrorCode.NOT_AUTHORIZED.code))
+            .andExpect(jsonPath("$.error.message").value(ErrorCode.NOT_AUTHORIZED.message))
+
+        quizRepository.findById(quiz.id!!).isPresent
     }
 
 }

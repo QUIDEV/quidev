@@ -1,5 +1,6 @@
 package kr.quidev.quiz.service
 
+import kr.quidev.common.exception.NotAuthorized
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.dto.QuizEditDto
@@ -61,7 +62,7 @@ class QuizService(
         val original = quizRepository.findById(id).orElseThrow()
 
         if (original.submitter.id != memberContext.member.id) {
-            throw IllegalAccessException("not allowed to edit")
+            throw NotAuthorized()
         }
 
         original.description = edit.description!!
@@ -81,8 +82,8 @@ class QuizService(
 
     fun deleteQuiz(memberContext: MemberContext, id: Long) {
         val quiz = quizRepository.findById(id).orElseThrow()
-        if(quiz.submitter.id != memberContext.member.id) {
-            throw IllegalAccessException("not allowed to delete")
+        if (quiz.submitter.id != memberContext.member.id) {
+            throw NotAuthorized()
         }
         quizRepository.delete(quiz)
     }

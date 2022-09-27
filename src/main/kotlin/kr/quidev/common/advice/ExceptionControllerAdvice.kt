@@ -2,6 +2,8 @@ package kr.quidev.common.advice
 
 import kr.quidev.common.dto.ApiResponse
 import kr.quidev.common.dto.Error
+import kr.quidev.common.enums.ErrorCode.*
+import kr.quidev.common.exception.NotAuthorized
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -22,14 +24,21 @@ class ExceptionControllerAdvice {
         val validation = e.fieldErrors.map { e ->
             Error.ValidationResult(field = e.field, message = e.defaultMessage)
         }
-        return ApiResponse.fail(code = 400, message = "validation failed", validation = validation)
+        return ApiResponse.fail(VALIDATION_FAILED, validation = validation)
     }
 
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     @ExceptionHandler
     fun noSuchElementExceptionHandler(e: NoSuchElementException): ApiResponse {
-        return ApiResponse.fail(code = 400, message = "invalid request")
+        return ApiResponse.fail(NOT_FOUND)
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    @ExceptionHandler
+    fun notAuthorizedHandler(e: NotAuthorized): ApiResponse {
+        return ApiResponse.fail(NOT_AUTHORIZED)
     }
 
 }

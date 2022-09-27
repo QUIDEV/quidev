@@ -1,5 +1,6 @@
 package kr.quidev.quiz.service
 
+import kr.quidev.common.exception.NotAuthorized
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
@@ -34,11 +35,13 @@ internal class QuizServiceTest {
     private lateinit var quizRepository: QuizRepository
 
     private var member: Member? = null
+    private var member2: Member? = null
     private var java: Skill? = null
 
     @BeforeAll
     fun beforeAll() {
-        member = memberService.createMember(Member(name = "name", password = "", email = ""))
+        member = memberService.createMember(Member(name = "name", password = "", email = "mem1"))
+        member2 = memberService.createMember(Member(name = "name", password = "", email = "mem2"))
         java = skillService.save(Skill(name = ProgrammingLanguage.JAVA.getValue()))
     }
 
@@ -105,6 +108,9 @@ internal class QuizServiceTest {
         assertThat(findById).isNotNull
         assertThat(findById.id).isEqualTo(quiz.id)
         assertThat(findById.description).isEqualTo(description)
+
+        val e = assertThrows<NoSuchElementException> { quizService.findById(100L) }
+        assertThat(e.message).isEqualTo("No value present")
     }
 
     @Test
@@ -141,6 +147,7 @@ internal class QuizServiceTest {
     }
 
     @Test
+    @DisplayName("Quiz Edit")
     fun editQuizTest() {
         // Given
         val quiz = quizService.createQuiz(
@@ -188,7 +195,7 @@ internal class QuizServiceTest {
 
     @Test
     @DisplayName("Delete quiz")
-    fun test() {
+    fun deleteQuizTest() {
         // Given
         val quiz = quizService.createQuiz(
             submitter = member!!, createDto = QuizCreateDto(
@@ -208,6 +215,10 @@ internal class QuizServiceTest {
         val memberContext = Mockito.mock(MemberContext::class.java)
         Mockito.`when`(memberContext.member).thenReturn(member)
 
+        val memberContext2 = Mockito.mock(MemberContext::class.java)
+        Mockito.`when`(memberContext2.member).thenReturn(member2)
+
+        assertThrows<NotAuthorized> { quizService.deleteQuiz(memberContext = memberContext2, id = quiz.id!!) }
         quizService.deleteQuiz(memberContext = memberContext, id = quiz.id!!)
 
         // Then
