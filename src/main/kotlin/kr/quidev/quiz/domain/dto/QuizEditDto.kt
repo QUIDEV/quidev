@@ -1,14 +1,22 @@
 package kr.quidev.quiz.domain.dto
 
+import org.hibernate.validator.constraints.Length
 import javax.validation.constraints.NotBlank
 
 data class QuizEditDto(
+
     @field:NotBlank
+    @field:Length(max = 5000)
     val description: String?,
+
     @field:NotBlank
+    @field:Length(max = 5000)
     val answer: String?,
+
     @field:NotBlank
+    @field:Length(max = 5000)
     val explanation: String?,
+
     val examples: Array<String>,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -30,5 +38,4 @@ data class QuizEditDto(
         result = 31 * result + examples.contentHashCode()
         return result
     }
-
 }

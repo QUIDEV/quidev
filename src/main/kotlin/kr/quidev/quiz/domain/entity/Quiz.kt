@@ -1,6 +1,7 @@
 package kr.quidev.quiz.domain.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import kr.quidev.common.exception.ValidationException
 import kr.quidev.member.domain.entity.Member
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
@@ -9,10 +10,10 @@ import javax.persistence.*
 
 @Entity
 class Quiz(
-
     @Column(nullable = false, length = 5000)
     var description: String,
 
+    @Column(nullable = false, length = 5000)
     var answer: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,10 +36,16 @@ class Quiz(
     @UpdateTimestamp
     var updatedDate: LocalDateTime? = null
 
-    @OneToMany(mappedBy = "quiz", orphanRemoval = true)
+    @OneToMany(mappedBy = "quiz", orphanRemoval = true, cascade = [CascadeType.PERSIST])
     val examples = mutableListOf<Example>()
 
     override fun toString(): String {
         return "Quiz(id=$id, description='$description', answer='$answer', example=$examples)"
+    }
+
+    fun validate() {
+        if (examples.size > 10) {
+            throw ValidationException("examples", "too many examples")
+        }
     }
 }

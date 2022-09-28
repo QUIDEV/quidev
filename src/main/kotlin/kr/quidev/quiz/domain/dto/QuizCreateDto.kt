@@ -1,17 +1,26 @@
 package kr.quidev.quiz.domain.dto
 
+import org.hibernate.validator.constraints.Length
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
 data class QuizCreateDto(
+
     @field:NotBlank
+    @field:Length(max = 5000)
     val description: String?,
+
     @field:NotBlank
+    @field:Length(max = 5000)
     val answer: String?,
+
     @field:NotBlank
+    @field:Length(max = 5000)
     val explanation: String?,
+
     @field:NotNull
     val skillId: Long?,
+
     val examples: Array<String>,
 ) {
     override fun equals(other: Any?): Boolean {
