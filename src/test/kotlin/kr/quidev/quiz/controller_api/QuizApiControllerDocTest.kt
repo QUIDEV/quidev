@@ -23,6 +23,7 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
+import org.springframework.restdocs.snippet.Attributes
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -183,10 +184,11 @@ class QuizApiControllerDocTest {
                 document(
                     "quiz-create",
                     requestFields(
-                        fieldWithPath("description").description("Quiz description"),
+                        fieldWithPath("description").description("Quiz description")
+                            .attributes(Attributes.key("constraint").value("Description must be between 10 and 5000 characters")),
                         fieldWithPath("answer").description("Quiz answer"),
                         fieldWithPath("explanation").description("Quiz explanation"),
-                        fieldWithPath("examples").description("Quiz examples"),
+                        fieldWithPath("examples").description("Quiz examples").optional(),
                         fieldWithPath("skillId").description("Skill id of the Quiz"),
                     )
                 )

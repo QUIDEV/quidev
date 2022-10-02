@@ -40,3 +40,4 @@ out/
 
 ## rest doc generated
 src/main/resources/static/docs/**
+spy.log
