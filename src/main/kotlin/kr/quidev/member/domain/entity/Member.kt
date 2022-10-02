@@ -10,7 +10,9 @@ class Member(
     @Column(name = "id", nullable = false)
     var id: Long? = null,
     var password: String,
+    @Column(unique = true)
     var name: String,
+    @Column(unique = true)
     var email: String,
     var role: String = "user",
 ) {

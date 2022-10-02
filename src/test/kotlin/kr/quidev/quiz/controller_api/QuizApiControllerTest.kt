@@ -7,7 +7,7 @@ import kr.quidev.common.enums.ErrorCode
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
-import kr.quidev.quiz.domain.dto.QuizEditDto
+import kr.quidev.quiz.domain.dto.QuizUpdateDto
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.repository.QuizRepository
@@ -60,7 +60,7 @@ internal class QuizApiControllerTest {
     @Autowired
     lateinit var quizRepository: QuizRepository
 
-    val email = "shane@park.dev"
+    val email = "shan@dev.park"
     private var member: Member? = null
     private var member2: Member? = null
     private var skill: Skill? = null
@@ -110,7 +110,61 @@ internal class QuizApiControllerTest {
         assertThat(findById.description).isEqualTo(description)
         assertThat(findById.explanation).isEqualTo(explanation)
         assertThat(findById.examples).hasSize(3)
-        assertThat(findById.skill?.name).isEqualTo("java")
+        assertThat(findById.skill.name).isEqualTo("java")
+    }
+
+    @Test
+    @DisplayName("create quiz test: description over 5000 characters")
+    fun createQuizFail() {
+        val user = userDetailService.loadUserByUsername(email)
+        val description = "a".repeat(5001)
+        val answer = "answer"
+        val explanation = "explanation"
+        val quizCreateDto = QuizCreateDto(
+            description = description,
+            answer = answer,
+            explanation = explanation,
+            examples = arrayOf("example1", "example2", "example3"),
+            skillId = skill!!.id
+        )
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/quiz")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
+                .content(mapper.writeValueAsString(quizCreateDto))
+        ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.error").isNotEmpty)
+            .andExpect(jsonPath("$.error.code").value(ErrorCode.VALIDATION_FAILED.code))
+            .andExpect(jsonPath("$.error.message").value(ErrorCode.VALIDATION_FAILED.message))
+            .andExpect(jsonPath("$.error.validation[0].field").value("description"))
+            .andExpect(jsonPath("$.error.validation[0].message").value("length must be between 0 and 5000"))
+    }
+
+    @Test
+    @DisplayName("create quiz test: too many examples")
+    fun createQuizFail2() {
+        val user = userDetailService.loadUserByUsername(email)
+        val description = "desc"
+        val answer = "answer"
+        val explanation = "explanation"
+        val quizCreateDto = QuizCreateDto(
+            description = description,
+            answer = answer,
+            explanation = explanation,
+            examples = Array(11) { "example" },
+            skillId = skill!!.id
+        )
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/quiz")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
+                .content(mapper.writeValueAsString(quizCreateDto))
+        ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.error").isNotEmpty)
+            .andExpect(jsonPath("$.error.code").value(ErrorCode.VALIDATION_FAILED.code))
+            .andExpect(jsonPath("$.error.message").value(ErrorCode.VALIDATION_FAILED.message))
+            .andExpect(jsonPath("$.error.validation[0].field").value("examples"))
+            .andExpect(jsonPath("$.error.validation[0].message").value("too many examples"))
     }
 
     @Test
@@ -252,7 +306,7 @@ internal class QuizApiControllerTest {
                 skillId = skill!!.id
             )
         )
-        val quizEditDto = QuizEditDto(
+        val quizUpdateDto = QuizUpdateDto(
             description = "desc2",
             answer = "answer2",
             explanation = "explanation2",
@@ -266,31 +320,70 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(SecurityMockMvcRequestPostProcessors.user(user))
-                .content(mapper.writeValueAsString(quizEditDto))
+                .content(mapper.writeValueAsString(quizUpdateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body.id").value(quiz.id))
             .andExpect(jsonPath("$.body.answer").value(quiz.answer))
-            .andExpect(jsonPath("$.body.description").value(quizEditDto.description))
-            .andExpect(jsonPath("$.body.explanation").value(quizEditDto.explanation))
+            .andExpect(jsonPath("$.body.description").value(quizUpdateDto.description))
+            .andExpect(jsonPath("$.body.explanation").value(quizUpdateDto.explanation))
             .andExpect(jsonPath("$.body.examples").isArray)
             .andExpect(jsonPath("$.body.examples.length()", `is`(3)))
-            .andExpect(jsonPath("$.body.examples[0]").value(quizEditDto.examples[0]))
-            .andExpect(jsonPath("$.body.examples[1]").value(quizEditDto.examples[1]))
-            .andExpect(jsonPath("$.body.examples[2]").value(quizEditDto.examples[2]))
+            .andExpect(jsonPath("$.body.examples[0]").value(quizUpdateDto.examples[0]))
+            .andExpect(jsonPath("$.body.examples[1]").value(quizUpdateDto.examples[1]))
+            .andExpect(jsonPath("$.body.examples[2]").value(quizUpdateDto.examples[2]))
 
         val updated = quizService.findById(quiz.id!!)
-        assertThat(updated.description).isEqualTo(quizEditDto.description)
-        assertThat(updated.answer).isEqualTo(quizEditDto.answer)
-        assertThat(updated.explanation).isEqualTo(quizEditDto.explanation)
+        assertThat(updated.description).isEqualTo(quizUpdateDto.description)
+        assertThat(updated.answer).isEqualTo(quizUpdateDto.answer)
+        assertThat(updated.explanation).isEqualTo(quizUpdateDto.explanation)
 
         updated.examples.forEachIndexed { index, example ->
-            assertThat(example.text).isEqualTo(quizEditDto.examples[index])
+            assertThat(example.text).isEqualTo(quizUpdateDto.examples[index])
         }
     }
 
     @Test
+    @DisplayName("try to edit a quiz which has too long description")
+    fun editQuizFailTest1() {
+        // Given
+        val quiz = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = "before",
+                answer = "answer",
+                explanation = "explanation",
+                examples = arrayOf("example1", "example2", "example3"),
+                skillId = skill!!.id
+            )
+        )
+        val quizUpdateDto = QuizUpdateDto(
+            description = "a".repeat(5001),
+            answer = "answer2",
+            explanation = "explanation2",
+            examples = arrayOf("ex1", "ex2", "ex3"),
+        )
+
+        val user = userDetailService.loadUserByUsername(member2!!.email)
+
+        // Expected
+        mockMvc.perform(
+            MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
+                .content(mapper.writeValueAsString(quizUpdateDto))
+        ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.body").isEmpty)
+            .andExpect(jsonPath("$.error").isNotEmpty)
+            .andExpect(jsonPath("$.error.code").value(ErrorCode.VALIDATION_FAILED.code))
+            .andExpect(jsonPath("$.error.message").value(ErrorCode.VALIDATION_FAILED.message))
+            .andExpect(jsonPath("$.error.validation").isArray)
+            .andExpect(jsonPath("$.error.validation.length()", `is`(1)))
+            .andExpect(jsonPath("$.error.validation[0].field").value("description"))
+            .andExpect(jsonPath("$.error.validation[0].message").value("length must be between 0 and 5000"))
+    }
+
+    @Test
     @DisplayName("try to edit a quiz which is not mine")
-    fun editQuizFailTest() {
+    fun editQuizFailTest2() {
         // Given
         val quiz = quizService.createQuiz(
             submitter = member!!, createDto = QuizCreateDto(
@@ -301,7 +394,7 @@ internal class QuizApiControllerTest {
                 skillId = skill!!.id
             )
         )
-        val quizEditDto = QuizEditDto(
+        val quizUpdateDto = QuizUpdateDto(
             description = "desc2",
             answer = "answer2",
             explanation = "explanation2",
@@ -315,12 +408,77 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(SecurityMockMvcRequestPostProcessors.user(user))
-                .content(mapper.writeValueAsString(quizEditDto))
+                .content(mapper.writeValueAsString(quizUpdateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)
             .andExpect(jsonPath("$.error.code").value(ErrorCode.NOT_AUTHORIZED.code))
             .andExpect(jsonPath("$.error.message").value(ErrorCode.NOT_AUTHORIZED.message))
+    }
+
+    @Test
+    @DisplayName("try to edit a quiz which is not exist")
+    fun editQuizFailTest3() {
+        // Given
+        val quizUpdateDto = QuizUpdateDto(
+            description = "desc2",
+            answer = "answer2",
+            explanation = "explanation2",
+            examples = arrayOf("ex1", "ex2", "ex3"),
+        )
+
+        val user = userDetailService.loadUserByUsername(member2!!.email)
+
+        // Expected
+        mockMvc.perform(
+            MockMvcRequestBuilders.patch("/api/quiz/{id}", 100L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
+                .content(mapper.writeValueAsString(quizUpdateDto))
+        ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.body").isEmpty)
+            .andExpect(jsonPath("$.error").isNotEmpty)
+            .andExpect(jsonPath("$.error.code").value(ErrorCode.NOT_FOUND.code))
+            .andExpect(jsonPath("$.error.message").value(ErrorCode.NOT_FOUND.message))
+    }
+
+    @Test
+    @DisplayName("try to edit a quiz which has too many examples")
+    fun editQuizFailTest4() {
+        // Given
+        val quiz = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = "before",
+                answer = "answer",
+                explanation = "explanation",
+                examples = arrayOf("ex1", "ex2", "ex3"),
+                skillId = skill!!.id
+            )
+        )
+        val quizUpdateDto = QuizUpdateDto(
+            description = "desc",
+            answer = "answer2",
+            explanation = "explanation2",
+            examples = Array(11) { "example" },
+        )
+
+        val user = userDetailService.loadUserByUsername(member!!.email)
+
+        // Expected
+        mockMvc.perform(
+            MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
+                .content(mapper.writeValueAsString(quizUpdateDto))
+        ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.body").isEmpty)
+            .andExpect(jsonPath("$.error").isNotEmpty)
+            .andExpect(jsonPath("$.error.code").value(ErrorCode.VALIDATION_FAILED.code))
+            .andExpect(jsonPath("$.error.message").value(ErrorCode.VALIDATION_FAILED.message))
+            .andExpect(jsonPath("$.error.validation").isArray)
+            .andExpect(jsonPath("$.error.validation.length()", `is`(1)))
+            .andExpect(jsonPath("$.error.validation[0].field").value("examples"))
+            .andExpect(jsonPath("$.error.validation[0].message").value("too many examples"))
     }
 
     @Test
@@ -379,6 +537,23 @@ internal class QuizApiControllerTest {
             .andExpect(jsonPath("$.error.message").value(ErrorCode.NOT_AUTHORIZED.message))
 
         quizRepository.findById(quiz.id!!).isPresent
+    }
+
+    @Test
+    @DisplayName("try to delete a quiz which is not exist")
+    fun deleteQuizFailTest2() {
+        val user = userDetailService.loadUserByUsername(member2!!.email)
+
+        // Expected
+        mockMvc.perform(
+            MockMvcRequestBuilders.delete("/api/quiz/{id}", 100L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
+        ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.body").isEmpty)
+            .andExpect(jsonPath("$.error").isNotEmpty)
+            .andExpect(jsonPath("$.error.code").value(ErrorCode.NOT_FOUND.code))
+            .andExpect(jsonPath("$.error.message").value(ErrorCode.NOT_FOUND.message))
     }
 
 }

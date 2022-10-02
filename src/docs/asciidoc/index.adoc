@@ -1,0 +1,67 @@
+= Quiz
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:toc:
+
+== [GET] /api/quiz
+
+=== request
+include::{snippets}/quiz-all/http-request.adoc[]
+=== Response
+include::{snippets}/quiz-all/http-response.adoc[]
+=== Response Fields
+include::{snippets}/quiz-all/response-fields.adoc[]
+=== Curl
+include::{snippets}/quiz-all/curl-request.adoc[]
+
+== [GET] /api/quiz/{id}
+
+=== PathParameter
+include::{snippets}/quiz-inquiry/path-parameters.adoc[]
+=== Request
+include::{snippets}/quiz-inquiry/http-request.adoc[]
+=== Response
+include::{snippets}/quiz-inquiry/http-response.adoc[]
+include::{snippets}/quiz-inquiry/response-fields.adoc[]
+=== Curl
+include::{snippets}/quiz-inquiry/curl-request.adoc[]
+
+== [POST] /api/quiz
+
+=== Request
+include::{snippets}/quiz-create/http-request.adoc[]
+=== Response
+include::{snippets}/quiz-create/http-response.adoc[]
+=== Request fields
+include::{snippets}/quiz-create/request-fields.adoc[]
+=== Curl
+include::{snippets}/quiz-create/curl-request.adoc[]
+
+== [PATCH] /api/quiz/{id}
+
+=== PathParameter
+include::{snippets}/quiz-update/path-parameters.adoc[]
+=== Request
+include::{snippets}/quiz-update/http-request.adoc[]
+include::{snippets}/quiz-update/request-fields.adoc[]
+=== Response
+include::{snippets}/quiz-update/http-response.adoc[]
+include::{snippets}/quiz-update/response-fields.adoc[]
+=== Curl
+include::{snippets}/quiz-update/curl-request.adoc[]
+
+== [DELETE] /api/quiz/{id}
+
+=== PathParameter
+include::{snippets}/quiz-delete/path-parameters.adoc[]
+=== Request
+include::{snippets}/quiz-delete/http-request.adoc[]
+=== Response
+include::{snippets}/quiz-delete/http-response.adoc[]
+=== Curl
+include::{snippets}/quiz-delete/curl-request.adoc[]
+

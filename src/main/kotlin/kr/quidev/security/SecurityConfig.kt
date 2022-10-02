@@ -32,7 +32,7 @@ class SecurityConfig(private val userDetailsService: UserDetailsService) {
         http.authorizeRequests()
             .antMatchers("/adm")
             .access("hasRole('ADMIN')")
-            .antMatchers("/", "/join", "/login")
+            .antMatchers("/", "/join", "/login", "/docs/**")
             .permitAll()
             .anyRequest()
             .authenticated()

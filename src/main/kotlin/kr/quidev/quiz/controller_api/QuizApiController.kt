@@ -3,7 +3,7 @@ package kr.quidev.quiz.controller_api
 import kr.quidev.common.dto.ApiResponse
 import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.dto.QuizDto
-import kr.quidev.quiz.domain.dto.QuizEditDto
+import kr.quidev.quiz.domain.dto.QuizUpdateDto
 import kr.quidev.quiz.domain.dto.QuizSearch
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.security.domain.MemberContext
@@ -46,9 +46,8 @@ class QuizApiController(
         )
         @PageableDefault pageable: Pageable
     ): ApiResponse {
-        return ApiResponse.ok(
-            quizService.findAll(pageable).map { quiz -> QuizDto.of(quiz) }
-        )
+        val pagedContent = quizService.findAll(pageable).map { quiz -> QuizDto.of(quiz) }
+        return ApiResponse.ok(pagedContent)
     }
 
     @GetMapping("search")
@@ -61,7 +60,7 @@ class QuizApiController(
     @PatchMapping("/{id}")
     fun editQuiz(
         @PathVariable id: Long,
-        @RequestBody @Valid editDto: QuizEditDto,
+        @RequestBody @Valid editDto: QuizUpdateDto,
         @AuthenticationPrincipal memberContext: MemberContext,
     ): ApiResponse {
         val quiz = quizService.edit(memberContext = memberContext, id = id, edit = editDto)
