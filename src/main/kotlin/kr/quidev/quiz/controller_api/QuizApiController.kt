@@ -1,6 +1,7 @@
 package kr.quidev.quiz.controller_api
 
 import kr.quidev.common.dto.ApiResponse
+import kr.quidev.common.dto.PageableContent
 import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.dto.QuizDto
 import kr.quidev.quiz.domain.dto.QuizEditDto
@@ -46,9 +47,8 @@ class QuizApiController(
         )
         @PageableDefault pageable: Pageable
     ): ApiResponse {
-        return ApiResponse.ok(
-            quizService.findAll(pageable).map { quiz -> QuizDto.of(quiz) }
-        )
+        val pagedContent = quizService.findAll(pageable).map { quiz -> QuizDto.of(quiz) }
+        return ApiResponse.ok(pagedContent)
     }
 
     @GetMapping("search")

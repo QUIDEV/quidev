@@ -18,8 +18,6 @@ repositories {
     mavenCentral()
 }
 
-val asciidoctorExt: Configuration by configurations.creating
-
 dependencies {
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -40,13 +38,11 @@ dependencies {
     // QueryDSL
     implementation("com.querydsl:querydsl-jpa:5.0.0")
     kapt("com.querydsl:querydsl-apt:5.0.0:jpa")
-
     // Spring Boot Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     // Spring Rest Docs
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-    asciidoctorExt("org.springframework.restdocs:spring-restdocs-asciidoctor")
 }
 
 tasks.withType<KotlinCompile> {
@@ -60,6 +56,11 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+val asciidoctorExt: Configuration by configurations.creating
+dependencies {
+    asciidoctorExt("org.springframework.restdocs:spring-restdocs-asciidoctor")
+}
+
 val snippetsDir by extra { file("build/generated-snippets") }
 tasks {
     test {
@@ -68,7 +69,7 @@ tasks {
 
     asciidoctor {
         inputs.dir(snippetsDir)
-        configurations("asciidoctorExt")
+        configurations(asciidoctorExt.name)
         dependsOn(test)
         doLast {
             copy {

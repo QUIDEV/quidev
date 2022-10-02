@@ -60,7 +60,7 @@ internal class QuizApiControllerTest {
     @Autowired
     lateinit var quizRepository: QuizRepository
 
-    val email = "shane@park.dev"
+    val email = "shan@dev.park"
     private var member: Member? = null
     private var member2: Member? = null
     private var skill: Skill? = null

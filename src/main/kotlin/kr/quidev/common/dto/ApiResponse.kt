@@ -1,6 +1,7 @@
 package kr.quidev.common.dto
 
 import kr.quidev.common.enums.ErrorCode
+import org.springframework.data.domain.Page
 
 data class ApiResponse(
     val body: Any? = null,
@@ -8,6 +9,11 @@ data class ApiResponse(
 ) {
 
     companion object {
+
+        fun ok(page: Page<out Any>): ApiResponse {
+            return ApiResponse(PageableContent.of(page))
+        }
+
         fun ok(body: Any): ApiResponse {
             return ApiResponse(body = body)
         }

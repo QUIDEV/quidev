@@ -1,3 +1,36 @@
-include::{snippets}/index/http-request.adoc[]
-include::{snippets}/index/http-response.adoc[]
-include::{snippets}/index/curl-request.adoc[]
+= Quizzes
+:toc:
+
+== [GET] /api/quiz
+
+=== request
+include::{snippets}/quiz-all/http-request.adoc[]
+=== Response
+include::{snippets}/quiz-all/http-response.adoc[]
+=== Response Fields
+include::{snippets}/quiz-all/response-fields.adoc[]
+=== Curl
+include::{snippets}/quiz-all/curl-request.adoc[]
+
+== [GET] /api/quiz/{id}
+
+=== PathParameter
+include::{snippets}/quiz-inquiry/path-parameters.adoc[]
+=== Request
+include::{snippets}/quiz-inquiry/http-request.adoc[]
+=== Response
+include::{snippets}/quiz-inquiry/http-response.adoc[]
+include::{snippets}/quiz-inquiry/response-fields.adoc[]
+=== Curl
+include::{snippets}/quiz-inquiry/curl-request.adoc[]
+
+== [POST] /api/quiz
+
+=== Request
+include::{snippets}/quiz-create/http-request.adoc[]
+=== Response
+include::{snippets}/quiz-create/http-response.adoc[]
+=== Request fields
+include::{snippets}/quiz-create/request-fields.adoc[]
+=== Curl
+include::{snippets}/quiz-create/curl-request.adoc[]

@@ -37,3 +37,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+## rest doc generated
+src/main/resources/static/docs/**
