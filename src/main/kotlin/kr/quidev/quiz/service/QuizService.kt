@@ -3,7 +3,7 @@ package kr.quidev.quiz.service
 import kr.quidev.common.exception.NotAuthorized
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.quiz.domain.dto.QuizCreateDto
-import kr.quidev.quiz.domain.dto.QuizEditDto
+import kr.quidev.quiz.domain.dto.QuizUpdateDto
 import kr.quidev.quiz.domain.dto.QuizSearch
 import kr.quidev.quiz.domain.entity.Example
 import kr.quidev.quiz.domain.entity.Quiz
@@ -57,7 +57,7 @@ class QuizService(
         return quizRepository.searchQuiz(quizSearch)
     }
 
-    fun edit(memberContext: MemberContext, id: Long, edit: QuizEditDto): Quiz {
+    fun edit(memberContext: MemberContext, id: Long, edit: QuizUpdateDto): Quiz {
         val quiz = quizRepository.findById(id).orElseThrow()
 
         if (quiz.submitter.id != memberContext.member.id) {

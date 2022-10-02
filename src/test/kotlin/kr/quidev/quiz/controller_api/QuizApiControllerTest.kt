@@ -7,7 +7,7 @@ import kr.quidev.common.enums.ErrorCode
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
-import kr.quidev.quiz.domain.dto.QuizEditDto
+import kr.quidev.quiz.domain.dto.QuizUpdateDto
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.repository.QuizRepository
@@ -306,7 +306,7 @@ internal class QuizApiControllerTest {
                 skillId = skill!!.id
             )
         )
-        val quizEditDto = QuizEditDto(
+        val quizUpdateDto = QuizUpdateDto(
             description = "desc2",
             answer = "answer2",
             explanation = "explanation2",
@@ -320,25 +320,25 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(SecurityMockMvcRequestPostProcessors.user(user))
-                .content(mapper.writeValueAsString(quizEditDto))
+                .content(mapper.writeValueAsString(quizUpdateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body.id").value(quiz.id))
             .andExpect(jsonPath("$.body.answer").value(quiz.answer))
-            .andExpect(jsonPath("$.body.description").value(quizEditDto.description))
-            .andExpect(jsonPath("$.body.explanation").value(quizEditDto.explanation))
+            .andExpect(jsonPath("$.body.description").value(quizUpdateDto.description))
+            .andExpect(jsonPath("$.body.explanation").value(quizUpdateDto.explanation))
             .andExpect(jsonPath("$.body.examples").isArray)
             .andExpect(jsonPath("$.body.examples.length()", `is`(3)))
-            .andExpect(jsonPath("$.body.examples[0]").value(quizEditDto.examples[0]))
-            .andExpect(jsonPath("$.body.examples[1]").value(quizEditDto.examples[1]))
-            .andExpect(jsonPath("$.body.examples[2]").value(quizEditDto.examples[2]))
+            .andExpect(jsonPath("$.body.examples[0]").value(quizUpdateDto.examples[0]))
+            .andExpect(jsonPath("$.body.examples[1]").value(quizUpdateDto.examples[1]))
+            .andExpect(jsonPath("$.body.examples[2]").value(quizUpdateDto.examples[2]))
 
         val updated = quizService.findById(quiz.id!!)
-        assertThat(updated.description).isEqualTo(quizEditDto.description)
-        assertThat(updated.answer).isEqualTo(quizEditDto.answer)
-        assertThat(updated.explanation).isEqualTo(quizEditDto.explanation)
+        assertThat(updated.description).isEqualTo(quizUpdateDto.description)
+        assertThat(updated.answer).isEqualTo(quizUpdateDto.answer)
+        assertThat(updated.explanation).isEqualTo(quizUpdateDto.explanation)
 
         updated.examples.forEachIndexed { index, example ->
-            assertThat(example.text).isEqualTo(quizEditDto.examples[index])
+            assertThat(example.text).isEqualTo(quizUpdateDto.examples[index])
         }
     }
 
@@ -355,7 +355,7 @@ internal class QuizApiControllerTest {
                 skillId = skill!!.id
             )
         )
-        val quizEditDto = QuizEditDto(
+        val quizUpdateDto = QuizUpdateDto(
             description = "a".repeat(5001),
             answer = "answer2",
             explanation = "explanation2",
@@ -369,7 +369,7 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(SecurityMockMvcRequestPostProcessors.user(user))
-                .content(mapper.writeValueAsString(quizEditDto))
+                .content(mapper.writeValueAsString(quizUpdateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)
@@ -394,7 +394,7 @@ internal class QuizApiControllerTest {
                 skillId = skill!!.id
             )
         )
-        val quizEditDto = QuizEditDto(
+        val quizUpdateDto = QuizUpdateDto(
             description = "desc2",
             answer = "answer2",
             explanation = "explanation2",
@@ -408,7 +408,7 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(SecurityMockMvcRequestPostProcessors.user(user))
-                .content(mapper.writeValueAsString(quizEditDto))
+                .content(mapper.writeValueAsString(quizUpdateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)
@@ -420,7 +420,7 @@ internal class QuizApiControllerTest {
     @DisplayName("try to edit a quiz which is not exist")
     fun editQuizFailTest3() {
         // Given
-        val quizEditDto = QuizEditDto(
+        val quizUpdateDto = QuizUpdateDto(
             description = "desc2",
             answer = "answer2",
             explanation = "explanation2",
@@ -434,7 +434,7 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.patch("/api/quiz/{id}", 100L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(SecurityMockMvcRequestPostProcessors.user(user))
-                .content(mapper.writeValueAsString(quizEditDto))
+                .content(mapper.writeValueAsString(quizUpdateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)
@@ -455,7 +455,7 @@ internal class QuizApiControllerTest {
                 skillId = skill!!.id
             )
         )
-        val quizEditDto = QuizEditDto(
+        val quizUpdateDto = QuizUpdateDto(
             description = "desc",
             answer = "answer2",
             explanation = "explanation2",
@@ -469,7 +469,7 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(SecurityMockMvcRequestPostProcessors.user(user))
-                .content(mapper.writeValueAsString(quizEditDto))
+                .content(mapper.writeValueAsString(quizUpdateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)

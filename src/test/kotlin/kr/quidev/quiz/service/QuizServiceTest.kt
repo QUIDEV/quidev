@@ -6,7 +6,7 @@ import kr.quidev.common.exception.ValidationException
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
-import kr.quidev.quiz.domain.dto.QuizEditDto
+import kr.quidev.quiz.domain.dto.QuizUpdateDto
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.domain.enums.ProgrammingLanguage
 import kr.quidev.quiz.repository.QuizRepository
@@ -202,7 +202,7 @@ internal class QuizServiceTest {
         val updatedAnswer = "changed answer"
         val updatedExplanation = "updated explanation"
         val examples = arrayOf("edited ex1", "edited ex2", "edited ex3")
-        val quizEditDto = QuizEditDto(
+        val quizUpdateDto = QuizUpdateDto(
             description = updatedDescription,
             answer = updatedAnswer,
             explanation = updatedExplanation,
@@ -212,7 +212,7 @@ internal class QuizServiceTest {
         // When
         Mockito.`when`(memberContext.member).thenReturn(member)
 
-        quizService.edit(memberContext, quiz.id!!, quizEditDto)
+        quizService.edit(memberContext, quiz.id!!, quizUpdateDto)
 
         em.flush()
         em.clear()
@@ -232,7 +232,7 @@ internal class QuizServiceTest {
     @Test
     @DisplayName("Quiz Edit test which is not exist")
     fun editQuizNotExistTest(@Mock memberContext: MemberContext) {
-        val quizEditDto = QuizEditDto(
+        val quizUpdateDto = QuizUpdateDto(
             description = "changed desc",
             answer = "changed answer",
             explanation = "updated explanation",
@@ -240,7 +240,7 @@ internal class QuizServiceTest {
         )
 
         // When
-        assertThrows<NoSuchElementException> { quizService.edit(memberContext, 100L, quizEditDto) }
+        assertThrows<NoSuchElementException> { quizService.edit(memberContext, 100L, quizUpdateDto) }
     }
 
     @Test

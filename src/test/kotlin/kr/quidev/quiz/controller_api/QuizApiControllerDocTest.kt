@@ -5,6 +5,7 @@ import kr.quidev.common.TestUtils.Companion.randomString
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
+import kr.quidev.quiz.domain.dto.QuizUpdateDto
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.quiz.service.QuizService
@@ -185,11 +186,113 @@ class QuizApiControllerDocTest {
                     "quiz-create",
                     requestFields(
                         fieldWithPath("description").description("Quiz description")
-                            .attributes(Attributes.key("constraint").value("Description must be between 10 and 5000 characters")),
+                            .attributes(
+                                Attributes.key("constraint").value("Description must be between 10 and 5000 characters")
+                            ),
                         fieldWithPath("answer").description("Quiz answer"),
                         fieldWithPath("explanation").description("Quiz explanation"),
                         fieldWithPath("examples").description("Quiz examples").optional(),
                         fieldWithPath("skillId").description("Skill id of the Quiz"),
+                    )
+                )
+            )
+    }
+
+    @Test
+    @DisplayName("Update Quiz")
+    fun editQuizTest() {
+        // Given
+        val quiz = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = "desc",
+                answer = "answer",
+                explanation = "explanation",
+                examples = arrayOf("example1", "example2", "example3"),
+                skillId = skill!!.id
+            )
+        )
+        val quizUpdateDto = QuizUpdateDto(
+            description = "edited description",
+            answer = "edited answer",
+            explanation = "edited explanation",
+            examples = arrayOf("ex1", "ex2", "ex3"),
+        )
+
+        val user = userDetailService.loadUserByUsername(member!!.email)
+
+        // Expected
+        this.mockMvc.perform(
+            RestDocumentationRequestBuilders.patch("/api/quiz/{quizId}", quiz.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
+                .content(mapper.writeValueAsString(quizUpdateDto))
+        )
+            .andExpect(status().isOk)
+            .andDo(MockMvcResultHandlers.print())
+            .andDo(
+                document(
+                    "quiz-update",
+                    pathParameters(
+                        parameterWithName("quizId").description("Id of the quiz")
+                    ),
+                    requestFields(
+                        fieldWithPath("description").description("Quiz description")
+                            .attributes(
+                                Attributes.key("constraint").value("Description must be between 10 and 5000 characters")
+                            ),
+                        fieldWithPath("answer").description("Quiz answer"),
+                        fieldWithPath("explanation").description("Quiz explanation"),
+                        fieldWithPath("examples").description("Quiz examples").optional(),
+                    ),
+                    responseFields(
+                        fieldWithPath("body.id").description("Quiz id"),
+                        fieldWithPath("body.description").description("Quiz description"),
+                        fieldWithPath("body.answer").description("Quiz answer"),
+                        fieldWithPath("body.explanation").description("Quiz explanation"),
+                        fieldWithPath("body.examples").description("Quiz examples"),
+                        fieldWithPath("body.skill").description("Skill field of the Quiz"),
+                        fieldWithPath("body.submitterName").description("Quiz Submitter"),
+                        fieldWithPath("error").description("Error Response"),
+                    )
+                )
+            )
+    }
+
+    @Test
+    @DisplayName("Delete Quiz")
+    fun deleteQuizTest() {
+        // Given
+        val quiz = quizService.createQuiz(
+            submitter = member!!, createDto = QuizCreateDto(
+                description = "desc",
+                answer = "answer",
+                explanation = "explanation",
+                examples = arrayOf("example1", "example2", "example3"),
+                skillId = skill!!.id
+            )
+        )
+
+        val user = userDetailService.loadUserByUsername(member!!.email)
+
+        // Expected
+        this.mockMvc.perform(
+            RestDocumentationRequestBuilders.delete("/api/quiz/{quizId}", quiz.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(SecurityMockMvcRequestPostProcessors.user(user))
+        )
+            .andExpect(status().isOk)
+            .andDo(MockMvcResultHandlers.print())
+            .andDo(
+                document(
+                    "quiz-delete",
+                    pathParameters(
+                        parameterWithName("quizId").description("Id of the quiz")
+                    ),
+                    responseFields(
+                        fieldWithPath("body").description("Quiz id"),
+                        fieldWithPath("error").description("Error Response"),
                     )
                 )
             )

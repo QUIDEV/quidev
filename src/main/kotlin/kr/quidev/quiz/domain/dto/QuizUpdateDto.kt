@@ -3,7 +3,7 @@ package kr.quidev.quiz.domain.dto
 import org.hibernate.validator.constraints.Length
 import javax.validation.constraints.NotBlank
 
-data class QuizEditDto(
+data class QuizUpdateDto(
 
     @field:NotBlank
     @field:Length(max = 5000)
@@ -21,7 +21,7 @@ data class QuizEditDto(
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is QuizEditDto) return false
+        if (other !is QuizUpdateDto) return false
 
         if (description != other.description) return false
         if (answer != other.answer) return false
