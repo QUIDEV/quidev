@@ -1,12 +1,13 @@
 package kr.quidev.security
 
+import kr.quidev.security.provider.CustomAuthenticationProvider
+import kr.quidev.security.service.CustomUserDetailsService
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
@@ -16,7 +17,9 @@ import org.springframework.security.web.savedrequest.SavedRequest
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig(private val userDetailsService: UserDetailsService) {
+class SecurityConfig(
+    private val userDetailsService: CustomUserDetailsService,
+) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     @Bean
@@ -84,12 +87,19 @@ class SecurityConfig(private val userDetailsService: UserDetailsService) {
                 response.sendRedirect("/denied")
             }
 
+        http.authenticationProvider(customAuthenticationProvider())
+
         return http.build()
     }
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder()
+    }
+
+    @Bean
+    fun customAuthenticationProvider(): CustomAuthenticationProvider {
+        return CustomAuthenticationProvider(passwordEncoder(), userDetailsService)
     }
 
 }
