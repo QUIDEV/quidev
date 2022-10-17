@@ -17,7 +17,6 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
@@ -40,7 +39,7 @@ internal class SubmissionServiceTest {
 
     @ParameterizedTest
     @CsvSource(
-        "'shane', '1234', 'shane@quidev.kr",
+        "'shane0', '1234', 'shane@quidev.kr",
     )
     fun submit(@AggregateWith(MemberAggregator::class) member: Member) {
         // Given

@@ -1,9 +1,8 @@
 package kr.quidev.submission.conroller
 
+import kr.quidev.member.domain.entity.Member
 import kr.quidev.quiz.domain.response.QuizSubmitResponse
-import kr.quidev.security.domain.MemberContext
 import kr.quidev.submission.service.SubmissionService
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -18,9 +17,9 @@ class QuizSubmitApiController(
     fun submitAnswer(
         @PathVariable quizId: Long,
         answer: String,
-        @AuthenticationPrincipal memberContext: MemberContext,
+        member: Member
     ): QuizSubmitResponse {
-        return submissionService.submit(memberContext.member, quizId, answer)
+        return submissionService.submit(member, quizId, answer)
     }
 
 }

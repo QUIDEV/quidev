@@ -13,7 +13,6 @@ import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.quiz.service.SkillService
-import kr.quidev.security.service.CustomUserDetailsService
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.*
@@ -22,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -52,9 +50,6 @@ internal class QuizApiControllerTest {
     lateinit var skillService: SkillService
 
     @Autowired
-    lateinit var userDetailService: CustomUserDetailsService
-
-    @Autowired
     lateinit var memberService: MemberService
 
     @Autowired
@@ -80,7 +75,6 @@ internal class QuizApiControllerTest {
     @Test
     @DisplayName("create quiz test: expected situation")
     fun createQuiz() {
-        val user = userDetailService.loadUserByUsername(email)
         val description = "desc"
         val answer = "answer"
         val explanation = "explanation"
@@ -94,7 +88,6 @@ internal class QuizApiControllerTest {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.post("/api/quiz")
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizCreateDto))
         )
         result.andExpect(status().isOk)
@@ -116,7 +109,6 @@ internal class QuizApiControllerTest {
     @Test
     @DisplayName("create quiz test: description over 5000 characters")
     fun createQuizFail() {
-        val user = userDetailService.loadUserByUsername(email)
         val description = "a".repeat(5001)
         val answer = "answer"
         val explanation = "explanation"
@@ -130,7 +122,6 @@ internal class QuizApiControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/quiz")
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizCreateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.error").isNotEmpty)
@@ -143,7 +134,6 @@ internal class QuizApiControllerTest {
     @Test
     @DisplayName("create quiz test: too many examples")
     fun createQuizFail2() {
-        val user = userDetailService.loadUserByUsername(email)
         val description = "desc"
         val answer = "answer"
         val explanation = "explanation"
@@ -157,7 +147,6 @@ internal class QuizApiControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/quiz")
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizCreateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.error").isNotEmpty)
@@ -170,7 +159,6 @@ internal class QuizApiControllerTest {
     @Test
     @DisplayName("create quiz test: Description is not provided")
     fun createQuizNoDesc() {
-        val user = userDetailService.loadUserByUsername(email)
         for (description in arrayOf("", " ", null)) {
             val quizCreateDto = QuizCreateDto(
                 description = description,
@@ -182,7 +170,6 @@ internal class QuizApiControllerTest {
             val result = mockMvc.perform(
                 MockMvcRequestBuilders.post("/api/quiz")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .with(SecurityMockMvcRequestPostProcessors.user(user))
                     .content(mapper.writeValueAsString(quizCreateDto))
             )
             result.andExpect(jsonPath("$.body").isEmpty)
@@ -211,7 +198,6 @@ internal class QuizApiControllerTest {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user("randomUser"))
         )
         log.info("response: {}", result.andReturn().response.contentAsString)
         result
@@ -244,7 +230,6 @@ internal class QuizApiControllerTest {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/quiz")
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user("randomUser"))
         )
         log.info("response: {}", result.andReturn().response.contentAsString)
         result
@@ -281,7 +266,6 @@ internal class QuizApiControllerTest {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/quiz/search")
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user("randomUser"))
         )
         log.info("response: {}", result.andReturn().response.contentAsString)
         result
@@ -313,13 +297,10 @@ internal class QuizApiControllerTest {
             examples = arrayOf("ex1", "ex2", "ex3"),
         )
 
-        val user = userDetailService.loadUserByUsername(member!!.email)
-
         // Expected
         mockMvc.perform(
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizUpdateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body.id").value(quiz.id))
@@ -362,13 +343,10 @@ internal class QuizApiControllerTest {
             examples = arrayOf("ex1", "ex2", "ex3"),
         )
 
-        val user = userDetailService.loadUserByUsername(member2!!.email)
-
         // Expected
         mockMvc.perform(
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizUpdateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
@@ -401,13 +379,10 @@ internal class QuizApiControllerTest {
             examples = arrayOf("ex1", "ex2", "ex3"),
         )
 
-        val user = userDetailService.loadUserByUsername(member2!!.email)
-
         // Expected
         mockMvc.perform(
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizUpdateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
@@ -427,13 +402,10 @@ internal class QuizApiControllerTest {
             examples = arrayOf("ex1", "ex2", "ex3"),
         )
 
-        val user = userDetailService.loadUserByUsername(member2!!.email)
-
         // Expected
         mockMvc.perform(
             MockMvcRequestBuilders.patch("/api/quiz/{id}", 100L)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizUpdateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
@@ -462,13 +434,10 @@ internal class QuizApiControllerTest {
             examples = Array(11) { "example" },
         )
 
-        val user = userDetailService.loadUserByUsername(member!!.email)
-
         // Expected
         mockMvc.perform(
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizUpdateDto))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
@@ -494,13 +463,10 @@ internal class QuizApiControllerTest {
             )
         )
 
-        val user = userDetailService.loadUserByUsername(member!!.email)
-
         // Expected
         mockMvc.perform(
             MockMvcRequestBuilders.delete("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").value(true))
 
@@ -523,13 +489,10 @@ internal class QuizApiControllerTest {
             )
         )
 
-        val user2 = userDetailService.loadUserByUsername(member2!!.email)
-
         // Expected
         mockMvc.perform(
             MockMvcRequestBuilders.delete("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user2))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)
@@ -542,13 +505,10 @@ internal class QuizApiControllerTest {
     @Test
     @DisplayName("try to delete a quiz which is not exist")
     fun deleteQuizFailTest2() {
-        val user = userDetailService.loadUserByUsername(member2!!.email)
-
         // Expected
         mockMvc.perform(
             MockMvcRequestBuilders.delete("/api/quiz/{id}", 100L)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)

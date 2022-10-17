@@ -10,7 +10,6 @@ import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.quiz.service.SkillService
-import kr.quidev.security.service.CustomUserDetailsService
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,7 +24,6 @@ import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import org.springframework.restdocs.snippet.Attributes
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
@@ -56,9 +54,6 @@ class QuizApiControllerDocTest {
 
     @Autowired
     lateinit var quizRepository: QuizRepository
-
-    @Autowired
-    lateinit var userDetailService: CustomUserDetailsService
 
     private var member: Member? = null
     private var skill: Skill? = null
@@ -92,7 +87,6 @@ class QuizApiControllerDocTest {
         this.mockMvc.perform(
             MockMvcRequestBuilders.get("/api/quiz")
                 .accept(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user("shane"))
         )
             .andExpect(status().isOk)
             .andDo(MockMvcResultHandlers.print())
@@ -133,7 +127,6 @@ class QuizApiControllerDocTest {
         this.mockMvc.perform(
             RestDocumentationRequestBuilders.get("/api/quiz/{quizId}", quiz.id)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user("shane"))
         )
             .andExpect(status().isOk)
             .andDo(MockMvcResultHandlers.print())
@@ -170,13 +163,11 @@ class QuizApiControllerDocTest {
             examples = arrayOf("example1", "example2", "example3"),
             skillId = skill!!.id
         )
-        val user = userDetailService.loadUserByUsername(member!!.email)
 
         this.mockMvc.perform(
             RestDocumentationRequestBuilders.post("/api/quiz")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizCreateDto))
         )
             .andExpect(status().isOk)
@@ -218,14 +209,11 @@ class QuizApiControllerDocTest {
             examples = arrayOf("ex1", "ex2", "ex3"),
         )
 
-        val user = userDetailService.loadUserByUsername(member!!.email)
-
         // Expected
         this.mockMvc.perform(
             RestDocumentationRequestBuilders.patch("/api/quiz/{quizId}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizUpdateDto))
         )
             .andExpect(status().isOk)
@@ -273,14 +261,11 @@ class QuizApiControllerDocTest {
             )
         )
 
-        val user = userDetailService.loadUserByUsername(member!!.email)
-
         // Expected
         this.mockMvc.perform(
             RestDocumentationRequestBuilders.delete("/api/quiz/{quizId}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
         )
             .andExpect(status().isOk)
             .andDo(MockMvcResultHandlers.print())

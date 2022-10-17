@@ -10,12 +10,9 @@ import kr.quidev.quiz.domain.dto.QuizUpdateDto
 import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.domain.enums.ProgrammingLanguage
 import kr.quidev.quiz.repository.QuizRepository
-import kr.quidev.security.domain.MemberContext
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -182,7 +179,7 @@ internal class QuizServiceTest {
 
     @Test
     @DisplayName("Quiz Edit")
-    fun editQuizTest(@Mock memberContext: MemberContext) {
+    fun editQuizTest() {
         // Given
         val quiz = quizService.createQuiz(
             submitter = member!!, createDto = QuizCreateDto(
@@ -209,10 +206,7 @@ internal class QuizServiceTest {
             examples = examples
         )
 
-        // When
-        Mockito.`when`(memberContext.member).thenReturn(member)
-
-        quizService.edit(memberContext, quiz.id!!, quizUpdateDto)
+        quizService.edit(member!!, quiz.id!!, quizUpdateDto)
 
         em.flush()
         em.clear()
@@ -231,7 +225,7 @@ internal class QuizServiceTest {
 
     @Test
     @DisplayName("Quiz Edit test which is not exist")
-    fun editQuizNotExistTest(@Mock memberContext: MemberContext) {
+    fun editQuizNotExistTest() {
         val quizUpdateDto = QuizUpdateDto(
             description = "changed desc",
             answer = "changed answer",
@@ -240,12 +234,12 @@ internal class QuizServiceTest {
         )
 
         // When
-        assertThrows<NoSuchElementException> { quizService.edit(memberContext, 100L, quizUpdateDto) }
+        assertThrows<NoSuchElementException> { quizService.edit(member!!, 100L, quizUpdateDto) }
     }
 
     @Test
     @DisplayName("Delete quiz")
-    fun deleteQuizTest(@Mock memberContext: MemberContext, @Mock memberContext2: MemberContext) {
+    fun deleteQuizTest() {
         // Given
         val quiz = quizService.createQuiz(
             submitter = member!!, createDto = QuizCreateDto(
@@ -262,11 +256,8 @@ internal class QuizServiceTest {
         )
 
         // When
-        Mockito.`when`(memberContext.member).thenReturn(member)
-        Mockito.`when`(memberContext2.member).thenReturn(member2)
-
-        assertThrows<NotAuthorized> { quizService.deleteQuiz(memberContext = memberContext2, id = quiz.id!!) }
-        quizService.deleteQuiz(memberContext = memberContext, id = quiz.id!!)
+        assertThrows<NotAuthorized> { quizService.deleteQuiz(member = member2!!, id = quiz.id!!) }
+        quizService.deleteQuiz(member = member!!, id = quiz.id!!)
 
         em.flush()
         em.clear()
@@ -279,9 +270,9 @@ internal class QuizServiceTest {
 
     @Test
     @DisplayName("Quiz Delete test which is not exist")
-    fun deleteQuizNotExistTest(@Mock memberContext: MemberContext) {
+    fun deleteQuizNotExistTest() {
         // When
-        assertThrows<NoSuchElementException> { quizService.deleteQuiz(memberContext, 100L) }
+        assertThrows<NoSuchElementException> { quizService.deleteQuiz(member!!, 100L) }
     }
 
 }

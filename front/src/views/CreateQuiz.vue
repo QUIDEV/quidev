@@ -14,7 +14,6 @@ const save = function() {
 
 </script>
 
-
 <template>
   <div>
     <textarea v-model="description" class="input-group" rows="15" placeholder="Description about the Quiz"/>

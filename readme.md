@@ -13,10 +13,21 @@ Simple and fun quiz experience for developers👩🏻‍💻<br>
 <a href="#" target="_blank"><img src="https://img.shields.io/badge/Vue.js-4FC08D?style=flat-square&logo=Vue.js&logoColor=white"/></a>
 </div>
 
-### What's Quidev
+## What's Quidev
 
 - Simple and fun Daily quiz for developers
 - Everyone can contribute to new quiz or evaluate them
 - Keep solving, earn XP, compete with your friends or other members
 - Ask, discuss, share your knowlege to make the planet smarter
 
+## How to install
+```bash
+## Backend
+git clone https://github.com/QUIDEV/quidev.git
+./gradlew build
+java -jar build/libs/quidev-0.0.1-SNAPSHOT.jar
+
+## Front
+cd front
+npm run dev
+```

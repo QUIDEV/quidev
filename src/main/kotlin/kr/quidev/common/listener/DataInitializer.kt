@@ -7,17 +7,17 @@ import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.domain.enums.ProgrammingLanguage.*
 import kr.quidev.quiz.repository.SkillRepository
 import kr.quidev.quiz.service.QuizService
+import kr.quidev.security.BcryptEncoder
 import org.springframework.context.ApplicationListener
 import org.springframework.context.event.ContextRefreshedEvent
 import org.springframework.core.env.Environment
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
 class DataInitializer(
     private val memberRepository: MemberRepository,
-    private val passwordEncoder: PasswordEncoder,
+    private val passwordEncoder: BcryptEncoder,
     private val quizService: QuizService,
     private val skillRepository: SkillRepository,
     private val environment: Environment

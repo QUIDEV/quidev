@@ -3,13 +3,12 @@ package kr.quidev.quiz.service
 import kr.quidev.common.exception.NotAuthorized
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.quiz.domain.dto.QuizCreateDto
-import kr.quidev.quiz.domain.dto.QuizUpdateDto
 import kr.quidev.quiz.domain.dto.QuizSearch
+import kr.quidev.quiz.domain.dto.QuizUpdateDto
 import kr.quidev.quiz.domain.entity.Example
 import kr.quidev.quiz.domain.entity.Quiz
 import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.quiz.repository.SkillRepository
-import kr.quidev.security.domain.MemberContext
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -57,10 +56,10 @@ class QuizService(
         return quizRepository.searchQuiz(quizSearch)
     }
 
-    fun edit(memberContext: MemberContext, id: Long, edit: QuizUpdateDto): Quiz {
+    fun edit(member: Member, id: Long, edit: QuizUpdateDto): Quiz {
         val quiz = quizRepository.findById(id).orElseThrow()
 
-        if (quiz.submitter.id != memberContext.member.id) {
+        if (quiz.submitter.id != member.id) {
             throw NotAuthorized()
         }
 
@@ -75,9 +74,9 @@ class QuizService(
         return quiz
     }
 
-    fun deleteQuiz(memberContext: MemberContext, id: Long) {
+    fun deleteQuiz(member: Member, id: Long) {
         val quiz = quizRepository.findById(id).orElseThrow()
-        if (quiz.submitter.id != memberContext.member.id) {
+        if (quiz.submitter.id != member.id) {
             throw NotAuthorized()
         }
         quizRepository.delete(quiz)

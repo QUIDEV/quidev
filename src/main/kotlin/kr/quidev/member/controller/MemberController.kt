@@ -1,15 +1,15 @@
 package kr.quidev.member.controller
 
-import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.domain.dto.MemberDto
+import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
-import org.springframework.security.crypto.password.PasswordEncoder
+import kr.quidev.security.BcryptEncoder
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PostMapping
 
 @Controller
 class MemberController(
-    private val passwordEncoder: PasswordEncoder,
+    private val passwordEncoder: BcryptEncoder,
     private val memberService: MemberService,
 ) {
 
