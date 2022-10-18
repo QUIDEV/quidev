@@ -1,6 +1,6 @@
 package kr.quidev.member.service
 
-import kr.quidev.member.domain.entity.Member
+import kr.quidev.member.domain.dto.MemberDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -13,7 +13,6 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
@@ -25,12 +24,12 @@ internal class MemberServiceTest {
     private val log = LoggerFactory.getLogger(javaClass)
 
     companion object
-    class MemberAggregator : ArgumentsAggregator {
+    class MemberDtoAggregator : ArgumentsAggregator {
         override fun aggregateArguments(accessor: ArgumentsAccessor, context: ParameterContext?): Any {
             val name = accessor.getString(0)
             val pass = accessor.getString(1)
             val email = accessor.getString(2)
-            return Member(name = name, email = email, password = pass)
+            return MemberDto(name = name, email = email, password = pass)
         }
     }
 
@@ -40,8 +39,8 @@ internal class MemberServiceTest {
         "'jenny', 'pass', 'jenny@quidev.kr",
         "'tesla', '0000', 'elon@coupang.com"
     )
-    fun createMember(@AggregateWith(MemberAggregator::class) member: Member) {
-        memberService.createMember(member)
+    fun createMember(@AggregateWith(MemberDtoAggregator::class) memberDto: MemberDto) {
+        val member = memberService.createMember(memberDto)
         val findById = memberService.findById(member.id!!)
         val findMember = findById ?: NoSuchElementException()
         log.info("findMember: {}", findMember)
@@ -54,7 +53,7 @@ internal class MemberServiceTest {
         "'lee', 'pass', 'lee@quidev.kr",
         "'connie', '0000', 'connie@coupang.com"
     )
-    fun findAll(@AggregateWith(MemberAggregator::class) member: Member) {
+    fun findAll(@AggregateWith(MemberDtoAggregator::class) member: MemberDto) {
         val beforeSize = memberService.findAll().size
         memberService.createMember(member)
         assertThat(memberService.findAll()).hasSize(beforeSize + 1)
@@ -63,10 +62,9 @@ internal class MemberServiceTest {
     @Test
     fun findByEmail() {
         val shaneEmail = "shane@argonet.co.kr"
-        val shane = Member(name = "shane", password = "1234", email = shaneEmail)
-        createMember(shane)
-        createMember(Member(name = "jenny", password = "1234", email = "shane@ssd.co.kr"))
-        createMember(Member(name = "june", password = "1256", email = "june@apple.co.kr"))
+        val shane = memberService.createMember(MemberDto(name = "shane", password = "1234", email = shaneEmail))
+        memberService.createMember(MemberDto(name = "jenny", password = "1234", email = "shane@ssd.co.kr"))
+        memberService.createMember(MemberDto(name = "june", password = "1256", email = "june@apple.co.kr"))
         val findMember = memberService.findByEmail(shaneEmail) ?: throw NoSuchElementException()
         assertThat(findMember).isEqualTo(shane)
         assertThrows<NoSuchElementException> {

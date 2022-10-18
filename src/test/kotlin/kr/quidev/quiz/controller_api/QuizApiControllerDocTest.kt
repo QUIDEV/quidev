@@ -1,7 +1,9 @@
 package kr.quidev.quiz.controller_api
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.ObjectMapper
+import kr.quidev.common.Constants
 import kr.quidev.common.TestUtils.Companion.randomString
+import kr.quidev.member.domain.dto.MemberDto
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
@@ -10,7 +12,7 @@ import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.quiz.service.SkillService
-import kr.quidev.security.service.CustomUserDetailsService
+import kr.quidev.security.dto.LoginToken
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,11 +27,12 @@ import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import org.springframework.restdocs.snippet.Attributes
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.LocalDateTime
+import java.util.*
 import javax.transaction.Transactional
 
 @SpringBootTest
@@ -40,7 +43,8 @@ import javax.transaction.Transactional
 @Transactional
 class QuizApiControllerDocTest {
 
-    private val mapper = jacksonObjectMapper()
+    @Autowired
+    lateinit var mapper: ObjectMapper
 
     @Autowired
     lateinit var mockMvc: MockMvc
@@ -57,16 +61,24 @@ class QuizApiControllerDocTest {
     @Autowired
     lateinit var quizRepository: QuizRepository
 
-    @Autowired
-    lateinit var userDetailService: CustomUserDetailsService
-
     private var member: Member? = null
     private var skill: Skill? = null
+    private var token: String? = null
 
     @BeforeAll
     fun beforeAll() {
-        member = memberService.createMember(Member(name = randomString(), password = "pass", email = randomString()))
+        member = memberService.createMember(MemberDto(name = randomString(), password = "pass", email = randomString()))
         skill = skillService.save(Skill(id = null, parent = null, name = "java"))
+
+        token = Base64.getEncoder().encodeToString(
+            mapper.writeValueAsString(
+                LoginToken(
+                    email = member!!.email,
+                    password = "pass",
+                    issuedAt = LocalDateTime.now()
+                )
+            ).toByteArray()
+        )
     }
 
     @BeforeEach
@@ -92,7 +104,7 @@ class QuizApiControllerDocTest {
         this.mockMvc.perform(
             MockMvcRequestBuilders.get("/api/quiz")
                 .accept(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user("shane"))
+                .header(Constants.AUTH_HEADER, token)
         )
             .andExpect(status().isOk)
             .andDo(MockMvcResultHandlers.print())
@@ -133,7 +145,7 @@ class QuizApiControllerDocTest {
         this.mockMvc.perform(
             RestDocumentationRequestBuilders.get("/api/quiz/{quizId}", quiz.id)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user("shane"))
+                .header(Constants.AUTH_HEADER, token)
         )
             .andExpect(status().isOk)
             .andDo(MockMvcResultHandlers.print())
@@ -170,14 +182,13 @@ class QuizApiControllerDocTest {
             examples = arrayOf("example1", "example2", "example3"),
             skillId = skill!!.id
         )
-        val user = userDetailService.loadUserByUsername(member!!.email)
 
         this.mockMvc.perform(
             RestDocumentationRequestBuilders.post("/api/quiz")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizCreateDto))
+                .header(Constants.AUTH_HEADER, token)
         )
             .andExpect(status().isOk)
             .andDo(MockMvcResultHandlers.print())
@@ -218,15 +229,13 @@ class QuizApiControllerDocTest {
             examples = arrayOf("ex1", "ex2", "ex3"),
         )
 
-        val user = userDetailService.loadUserByUsername(member!!.email)
-
         // Expected
         this.mockMvc.perform(
             RestDocumentationRequestBuilders.patch("/api/quiz/{quizId}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
                 .content(mapper.writeValueAsString(quizUpdateDto))
+                .header(Constants.AUTH_HEADER, token)
         )
             .andExpect(status().isOk)
             .andDo(MockMvcResultHandlers.print())
@@ -273,14 +282,12 @@ class QuizApiControllerDocTest {
             )
         )
 
-        val user = userDetailService.loadUserByUsername(member!!.email)
-
         // Expected
         this.mockMvc.perform(
             RestDocumentationRequestBuilders.delete("/api/quiz/{quizId}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .with(SecurityMockMvcRequestPostProcessors.user(user))
+                .header(Constants.AUTH_HEADER, token)
         )
             .andExpect(status().isOk)
             .andDo(MockMvcResultHandlers.print())
