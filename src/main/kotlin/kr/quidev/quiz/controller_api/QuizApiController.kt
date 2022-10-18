@@ -7,6 +7,7 @@ import kr.quidev.quiz.domain.dto.QuizDto
 import kr.quidev.quiz.domain.dto.QuizSearch
 import kr.quidev.quiz.domain.dto.QuizUpdateDto
 import kr.quidev.quiz.service.QuizService
+import kr.quidev.security.annotation.LoginMember
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -25,7 +26,7 @@ class QuizApiController(
     @PostMapping
     fun createQuiz(
         @RequestBody @Valid createDto: QuizCreateDto,
-        member: Member
+        @LoginMember member: Member,
     ): ApiResponse {
         val quiz = quizService.createQuiz(member, createDto)
         return ApiResponse.ok(mapOf(Pair("id", quiz.id)))
@@ -43,7 +44,7 @@ class QuizApiController(
             SortDefault(sort = ["id"], direction = Sort.Direction.ASC),
             SortDefault(sort = ["createdDate"], direction = Sort.Direction.DESC)
         )
-        @PageableDefault pageable: Pageable
+        @PageableDefault pageable: Pageable,
     ): ApiResponse {
         val pagedContent = quizService.findAll(pageable).map { quiz -> QuizDto.of(quiz) }
         return ApiResponse.ok(pagedContent)
@@ -60,7 +61,7 @@ class QuizApiController(
     fun editQuiz(
         @PathVariable id: Long,
         @RequestBody @Valid editDto: QuizUpdateDto,
-        member: Member,
+        @LoginMember member: Member,
     ): ApiResponse {
         val quiz = quizService.edit(member = member, id = id, edit = editDto)
         return ApiResponse.ok(QuizDto.of(quiz))
@@ -69,7 +70,7 @@ class QuizApiController(
     @DeleteMapping("/{id}")
     fun deleteQuiz(
         @PathVariable id: Long,
-        member: Member,
+        @LoginMember member: Member,
     ): ApiResponse {
         quizService.deleteQuiz(member = member, id = id)
         return ApiResponse.ok(true)

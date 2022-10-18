@@ -1,5 +1,6 @@
 package kr.quidev.submission.service
 
+import kr.quidev.member.domain.dto.MemberDto
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
@@ -41,7 +42,7 @@ internal class SubmissionServiceTest {
     @CsvSource(
         "'shane0', '1234', 'shane@quidev.kr",
     )
-    fun submit(@AggregateWith(MemberAggregator::class) member: Member) {
+    fun submit(@AggregateWith(MemberAggregator::class) member: MemberDto) {
         // Given
         val member = memberService.createMember(member)
         val java = skillService.save(Skill(name = ProgrammingLanguage.JAVA.getValue()))
@@ -87,7 +88,7 @@ internal class SubmissionServiceTest {
             val name = accessor.getString(0)
             val pass = accessor.getString(1)
             val email = accessor.getString(2)
-            return Member(name = name, email = email, password = pass)
+            return MemberDto(name = name, email = email, password = pass)
         }
     }
 

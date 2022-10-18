@@ -1,9 +1,11 @@
 package kr.quidev.quiz.controller_api
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import kr.quidev.common.Constants
 import kr.quidev.common.dto.ApiResponse
 import kr.quidev.common.enums.ErrorCode
+import kr.quidev.member.domain.dto.MemberDto
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
@@ -13,6 +15,7 @@ import kr.quidev.quiz.domain.entity.Skill
 import kr.quidev.quiz.repository.QuizRepository
 import kr.quidev.quiz.service.QuizService
 import kr.quidev.quiz.service.SkillService
+import kr.quidev.security.dto.LoginToken
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.*
@@ -26,6 +29,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.context.WebApplicationContext
+import java.time.LocalDateTime
+import java.util.*
 import javax.transaction.Transactional
 
 
@@ -38,7 +43,9 @@ internal class QuizApiControllerTest {
     @Autowired
     lateinit var mockMvc: MockMvc
     private val log = LoggerFactory.getLogger(javaClass)
-    private val mapper = jacksonObjectMapper()
+
+    @Autowired
+    lateinit var mapper: ObjectMapper
 
     @Autowired
     lateinit var context: WebApplicationContext
@@ -59,12 +66,32 @@ internal class QuizApiControllerTest {
     private var member: Member? = null
     private var member2: Member? = null
     private var skill: Skill? = null
+    private var token: String? = null
+    private var token2: String? = null
 
     @BeforeAll
     fun beforeAll() {
-        member = memberService.createMember(Member(name = "name", password = "pass", email = email))
-        member2 = memberService.createMember(Member(name = "name2", password = "pass", email = email + 2))
+        member = memberService.createMember(MemberDto(name = "name", password = "pass", email = email))
+        member2 = memberService.createMember(MemberDto(name = "name2", password = "pass", email = email + 2))
         skill = skillService.save(Skill(id = null, parent = null, name = "java"))
+        token = Base64.getEncoder().encodeToString(
+            mapper.writeValueAsString(
+                LoginToken(
+                    email = member!!.email,
+                    password = "pass",
+                    issuedAt = LocalDateTime.now()
+                )
+            ).toByteArray()
+        )
+        token2 = Base64.getEncoder().encodeToString(
+            mapper.writeValueAsString(
+                LoginToken(
+                    email = member2!!.email,
+                    password = "pass",
+                    issuedAt = LocalDateTime.now()
+                )
+            ).toByteArray()
+        )
     }
 
     @BeforeEach
@@ -89,6 +116,7 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.post("/api/quiz")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(quizCreateDto))
+                .header(Constants.AUTH_HEADER, token)
         )
         result.andExpect(status().isOk)
 
@@ -123,6 +151,7 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.post("/api/quiz")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(quizCreateDto))
+                .header(Constants.AUTH_HEADER, token)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.error").isNotEmpty)
             .andExpect(jsonPath("$.error.code").value(ErrorCode.VALIDATION_FAILED.code))
@@ -148,6 +177,7 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.post("/api/quiz")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(quizCreateDto))
+                .header(Constants.AUTH_HEADER, token)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.error").isNotEmpty)
             .andExpect(jsonPath("$.error.code").value(ErrorCode.VALIDATION_FAILED.code))
@@ -171,6 +201,7 @@ internal class QuizApiControllerTest {
                 MockMvcRequestBuilders.post("/api/quiz")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(mapper.writeValueAsString(quizCreateDto))
+                    .header(Constants.AUTH_HEADER, token)
             )
             result.andExpect(jsonPath("$.body").isEmpty)
                 .andExpect(jsonPath("$.error").isNotEmpty)
@@ -198,6 +229,7 @@ internal class QuizApiControllerTest {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(Constants.AUTH_HEADER, token)
         )
         log.info("response: {}", result.andReturn().response.contentAsString)
         result
@@ -230,6 +262,7 @@ internal class QuizApiControllerTest {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/quiz")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(Constants.AUTH_HEADER, token)
         )
         log.info("response: {}", result.andReturn().response.contentAsString)
         result
@@ -266,6 +299,7 @@ internal class QuizApiControllerTest {
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/quiz/search")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(Constants.AUTH_HEADER, token)
         )
         log.info("response: {}", result.andReturn().response.contentAsString)
         result
@@ -302,6 +336,7 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(quizUpdateDto))
+                .header(Constants.AUTH_HEADER, token)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body.id").value(quiz.id))
             .andExpect(jsonPath("$.body.answer").value(quiz.answer))
@@ -348,6 +383,7 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(quizUpdateDto))
+                .header(Constants.AUTH_HEADER, token)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)
@@ -384,6 +420,7 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(quizUpdateDto))
+                .header(Constants.AUTH_HEADER, token2)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)
@@ -407,6 +444,7 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.patch("/api/quiz/{id}", 100L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(quizUpdateDto))
+                .header(Constants.AUTH_HEADER, token)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)
@@ -439,6 +477,7 @@ internal class QuizApiControllerTest {
             MockMvcRequestBuilders.patch("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(quizUpdateDto))
+                .header(Constants.AUTH_HEADER, token)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)
@@ -467,6 +506,7 @@ internal class QuizApiControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.delete("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(Constants.AUTH_HEADER, token)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").value(true))
 
@@ -493,6 +533,7 @@ internal class QuizApiControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.delete("/api/quiz/{id}", quiz.id)
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(Constants.AUTH_HEADER, token2)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)
@@ -509,6 +550,7 @@ internal class QuizApiControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.delete("/api/quiz/{id}", 100L)
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(Constants.AUTH_HEADER, token)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.body").isEmpty)
             .andExpect(jsonPath("$.error").isNotEmpty)

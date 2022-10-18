@@ -1,10 +1,13 @@
 package kr.quidev.security.interceptor
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kr.quidev.common.Constants.*
+import kr.quidev.common.Constants.Companion.AUTH_HEADER
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.repository.MemberRepository
 import kr.quidev.security.BcryptEncoder
-import kr.quidev.security.dto.LoginDto
+import kr.quidev.security.dto.LoginToken
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
@@ -16,7 +19,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.LocalDateTime
 import java.util.*
 import javax.transaction.Transactional
 
@@ -27,6 +32,7 @@ import javax.transaction.Transactional
 internal class LoginInterceptorTest {
 
     private val mapper = jacksonObjectMapper()
+        .registerModule(JavaTimeModule())
 
     @Autowired
     private lateinit var memberRepository: MemberRepository
@@ -64,10 +70,11 @@ internal class LoginInterceptorTest {
     fun invalidToken() {
         mockMvc.perform(
             MockMvcRequestBuilders.get("/api/quiz")
-                .header("auth", "invalid")
+                .header(AUTH_HEADER, "invalid")
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().`is`(401))
+            .andExpect(header().doesNotExist(AUTH_HEADER))
     }
 
     @Test
@@ -82,15 +89,16 @@ internal class LoginInterceptorTest {
     @Test
     @DisplayName("good token")
     fun tokenOk() {
-        val loginDto = LoginDto("shane", "1234")
-        val json = mapper.writeValueAsString(loginDto)
+        val loginToken = LoginToken("shane", "1234", LocalDateTime.now())
+        val json = mapper.writeValueAsString(loginToken)
         val token = Base64.getEncoder().encodeToString(json.toByteArray()).toString()
         mockMvc.perform(
             MockMvcRequestBuilders.get("/api/quiz")
-                .header("auth", token)
+                .header(AUTH_HEADER, token)
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().`is`(200))
+            .andExpect(header().exists(AUTH_HEADER))
     }
 
 }

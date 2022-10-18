@@ -46,7 +46,7 @@ dependencies {
     // Spring Rest Docs
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 
-    // Encryption
+    // Utilities
     implementation("com.password4j:password4j:1.6.1")
 }
 

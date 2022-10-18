@@ -3,6 +3,7 @@ package kr.quidev.quiz.service
 import kr.quidev.common.TestUtils.Companion.randomString
 import kr.quidev.common.exception.NotAuthorized
 import kr.quidev.common.exception.ValidationException
+import kr.quidev.member.domain.dto.MemberDto
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.member.service.MemberService
 import kr.quidev.quiz.domain.dto.QuizCreateDto
@@ -47,8 +48,8 @@ internal class QuizServiceTest {
 
     @BeforeAll
     fun beforeAll() {
-        member = memberService.createMember(Member(name = randomString(), password = "", email = randomString()))
-        member2 = memberService.createMember(Member(name = randomString(), password = "", email = randomString()))
+        member = memberService.createMember(MemberDto(name = randomString(), password = "", email = randomString()))
+        member2 = memberService.createMember(MemberDto(name = randomString(), password = "", email = randomString()))
         java = skillService.save(Skill(name = ProgrammingLanguage.JAVA.getValue()))
     }
 

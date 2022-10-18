@@ -1,7 +1,8 @@
 package kr.quidev.security.resolver
 
+import kr.quidev.common.Constants.Companion.REQUEST_MEMBER
+import kr.quidev.member.domain.entity.Member
 import kr.quidev.security.annotation.LoginMember
-import kr.quidev.security.dto.LoginDto
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
@@ -22,15 +23,15 @@ class LoginResolver : HandlerMethodArgumentResolver {
         binderFactory: WebDataBinderFactory?
     ): Any? {
         val request: HttpServletRequest = webRequest.nativeRequest as HttpServletRequest
-        val loginDto: LoginDto = request.getAttribute("login") as LoginDto
+        val member = request.getAttribute(REQUEST_MEMBER) as Member
 
         val loginMember: LoginMember? = parameter.getParameterAnnotation(LoginMember::class.java)
 
-        if (loginDto == null || loginMember == null) {
+        if (member == null || loginMember == null) {
             throw IllegalArgumentException("No member")
         }
 
-        return loginDto
+        return member
 
     }
 }
