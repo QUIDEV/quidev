@@ -11,7 +11,7 @@ const examples3 = ref("")
 
 const save = function () {
   axios.post(
-      'http://localhost:8080/api/quiz',
+      '/quidev/api/quiz',
       {
         answer: answer.value,
         description: description.value,
