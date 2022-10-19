@@ -13,7 +13,7 @@ const router = createRouter({
         },
         {
             path: "/create",
-            name: "home",
+            name: "create",
             component: CreateQuiz,
         },
         {

@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import {ref} from "vue";
 import axios from "axios";
+import {useRouter} from "vue-router";
 
 const answer = ref("")
 const description = ref("")
 const explanation = ref("")
-const examples1 = ref("")
-const examples2 = ref("")
-const examples3 = ref("")
+const example1 = ref("")
+const example2 = ref("")
+const example3 = ref("")
+const router = useRouter()
 
 const save = function () {
   axios.post(
@@ -18,16 +20,16 @@ const save = function () {
         explanation: explanation.value,
         skillId: 1,
         examples: [
-          examples1.value,
-          examples2.value,
-          examples3.value
+          example1.value,
+          example2.value,
+          example3.value
         ]
       }, {
         headers: {
           'Authorization': 'eyJlbWFpbCI6InNoYW5lIiwicGFzc3dvcmQiOiIxMjM0IiwiaXNzdWVkQXQiOlsyMDIyLDEwLDE5LDIxLDEyLDU3LDg5MTM4OTAwMF19'
         }
-      }).then(function (response) {
-    console.log(response);
+      }).then(() => {
+    router.replace({name: 'home'});
   }).catch(function (error) {
     console.log(error);
   });
