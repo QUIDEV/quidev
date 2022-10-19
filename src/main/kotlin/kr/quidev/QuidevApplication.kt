@@ -8,6 +8,7 @@ import kr.quidev.security.resolver.LoginResolver
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
@@ -17,6 +18,7 @@ class QuidevApplication(
     private val memberService: MemberService,
     private val passwordEncoder: BcryptEncoder,
 ) : WebMvcConfigurer {
+
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(LoginInterceptor(objectMapper, memberService, passwordEncoder))
             .addPathPatterns("/api/**")
@@ -25,6 +27,11 @@ class QuidevApplication(
 
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
         resolvers.add(LoginResolver())
+    }
+
+    override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/**")
+            .allowedOrigins("http://localhost:5173")
     }
 }
 

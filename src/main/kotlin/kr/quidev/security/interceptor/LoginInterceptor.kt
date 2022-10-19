@@ -24,6 +24,11 @@ class LoginInterceptor(
     val log = org.slf4j.LoggerFactory.getLogger(this.javaClass)
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
+        // preflight request
+        if (request.method == "OPTIONS") {
+            return true
+        }
+
         try {
             val token = request.getHeader(AUTH_HEADER)
             if (token != null) {
@@ -31,6 +36,7 @@ class LoginInterceptor(
                 val loginToken = objectMapper.readValue(decode, LoginToken::class.java)
                 if (loginToken == null) {
                     response.sendError(HttpStatus.UNAUTHORIZED.value())
+                    log.warn("LoginInterceptor: token is null")
                     return false
                 }
                 val member = memberService.findByEmail(loginToken.email)
@@ -39,10 +45,12 @@ class LoginInterceptor(
                     request.setAttribute(REQUEST_MEMBER, member)
                     request.setAttribute(LOGIN_TOKEN, loginToken)
                     return true
+                } else {
+                    log.warn("LoginInterceptor: password is not matched")
                 }
             }
         } catch (e: JsonParseException) {
-
+            log.warn("LoginInterceptor: JsonParseException")
         }
         response.sendError(HttpStatus.UNAUTHORIZED.value())
         return false
@@ -54,7 +62,7 @@ class LoginInterceptor(
         handler: Any,
         modelAndView: ModelAndView?
     ) {
-        val token: LoginToken? = request.getAttribute(LOGIN_TOKEN) as LoginToken
+        val token: LoginToken? = request.getAttribute(LOGIN_TOKEN) as LoginToken?
         token?.let {
             token.refresh()
             val json = objectMapper.writeValueAsString(token)
