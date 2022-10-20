@@ -1,8 +1,8 @@
 import {createRouter, createWebHistory} from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import CreateQuiz from "../views/CreateQuiz.vue";
-import Login from "../views/Login.vue";
-import readView from "../views/ReadView.vue";
+import ReadQuiz from "../views/ReadQuiz.vue";
+import EditQuiz from "../views/EditQuiz.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,14 +18,15 @@ const router = createRouter({
       component: CreateQuiz,
     },
     {
-      path: "/login",
-      name: "login",
-      component: Login,
-    },
-    {
       path: "/read/:quizId",
       name: "read",
-      component: readView,
+      component: ReadQuiz,
+      props: true,
+    },
+    {
+      path: "/edit/:quizId",
+      name: "edit",
+      component: EditQuiz,
       props: true,
     }
   ],
