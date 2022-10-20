@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import axios from "axios";
 import {ref} from "vue";
+import {useRouter} from "vue-router";
 
 const quizzes = ref([]);
+const router = useRouter();
 
 axios.get('/quidev/api/quiz',
     {
@@ -16,16 +18,20 @@ axios.get('/quidev/api/quiz',
 }).catch(function (error) {
   console.log(error);
 });
+
+const moveToRead = () => {
+  router.push({name: "read"})
+}
 </script>
 
 <template>
   <ul>
     <li v-for="quiz in quizzes" :key="quiz.id">
       <div>
-        {{ quiz.title }}
+        <router-link :to="{name: 'read', params: { quizId: quiz.id}}">{{ quiz.description }}</router-link>
       </div>
       <div>
-        {{ quiz.description }}
+        {{ quiz.submitterName }}
       </div>
     </li>
   </ul>
