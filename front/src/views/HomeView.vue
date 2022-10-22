@@ -27,10 +27,10 @@ const moveToRead = () => {
 <template>
   <ul>
     <li v-for="quiz in quizzes" :key="quiz.id">
-      <div>
+      <div class="description">
         <router-link :to="{name: 'read', params: { quizId: quiz.id}}">{{ quiz.description }}</router-link>
       </div>
-      <div>
+      <div class="submitter">
         {{ quiz.submitterName }}
       </div>
     </li>
@@ -39,11 +39,28 @@ const moveToRead = () => {
 </template>
 
 <style scoped>
+
+ul {
+  list-style-type: none;
+  margin: 0;
+}
+
 li {
   margin-bottom: 1rem;
 }
 
 li:last-child {
   margin-bottom: 0;
+}
+
+li .description a {
+  font-size: 1.3em;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+  color: royalblue;
+}
+
+li .submitter {
+  color: #666;
 }
 </style>

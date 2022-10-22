@@ -1,10 +1,10 @@
-import { createApp } from "vue";
-import { createPinia } from "pinia";
+import {createApp} from "vue";
+import {createPinia} from "pinia";
 
 import App from "./App.vue";
 import router from "./router";
 
-import "bootstrap/dist/css/bootstrap.min.css";
+import "/src/assets/scss/main.scss";
 
 const app = createApp(App);
 
