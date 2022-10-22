@@ -29,7 +29,7 @@ const save = function () {
           'Authorization': 'eyJlbWFpbCI6InNoYW5lIiwicGFzc3dvcmQiOiIxMjM0IiwiaXNzdWVkQXQiOlsyMDIyLDEwLDE5LDIxLDEyLDU3LDg5MTM4OTAwMF19'
         }
       }).then(() => {
-    router.replace({name: 'home'});
+    router.replace({name: 'myQuiz'});
   }).catch(function (error) {
     console.log(error);
   });

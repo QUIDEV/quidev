@@ -32,6 +32,10 @@ class QuizService(
         return quizRepository.findAll(pageable)
     }
 
+    fun findAll(pageable: Pageable, member: Member): Page<Quiz> {
+        return quizRepository.findAllBySubmitter(pageable, member)
+    }
+
     fun createQuiz(submitter: Member, createDto: QuizCreateDto): Quiz {
         val skill = skillRepository.findById(createDto.skillId!!).orElseThrow()
         val quiz =

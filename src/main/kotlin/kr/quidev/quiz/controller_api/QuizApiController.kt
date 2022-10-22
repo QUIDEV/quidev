@@ -1,6 +1,7 @@
 package kr.quidev.quiz.controller_api
 
 import kr.quidev.common.dto.ApiResponse
+import kr.quidev.common.exception.NotAuthorized
 import kr.quidev.member.domain.entity.Member
 import kr.quidev.quiz.domain.dto.QuizCreateDto
 import kr.quidev.quiz.domain.dto.QuizDto
@@ -33,8 +34,13 @@ class QuizApiController(
     }
 
     @GetMapping("/{id}")
-    fun findQuiz(@PathVariable id: Long): ApiResponse {
+    fun findQuiz(
+        @PathVariable id: Long, @LoginMember member: Member,
+    ): ApiResponse {
         val quiz = quizService.findById(id)
+        if (quiz.submitter.id != member.id) {
+            throw NotAuthorized("You are not authorized to access this quiz")
+        }
         return ApiResponse.ok(QuizDto.of(quiz))
     }
 
@@ -42,11 +48,12 @@ class QuizApiController(
     fun findAll(
         @SortDefault.SortDefaults(
             SortDefault(sort = ["id"], direction = Sort.Direction.ASC),
-            SortDefault(sort = ["createdDate"], direction = Sort.Direction.DESC)
+            SortDefault(sort = ["createdDate"], direction = Sort.Direction.DESC),
         )
         @PageableDefault pageable: Pageable,
+        @LoginMember member: Member,
     ): ApiResponse {
-        val pagedContent = quizService.findAll(pageable).map { quiz -> QuizDto.of(quiz) }
+        val pagedContent = quizService.findAll(pageable, member).map { quiz -> QuizDto.of(quiz) }
         return ApiResponse.ok(pagedContent)
     }
 

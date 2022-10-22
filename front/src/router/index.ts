@@ -1,16 +1,16 @@
 import {createRouter, createWebHistory} from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import QuizList from "../views/QuizList.vue";
 import CreateQuiz from "../views/CreateQuiz.vue";
-import ReadQuiz from "../views/ReadQuiz.vue";
+import QuizRead from "../views/QuizRead.vue";
 import EditQuiz from "../views/EditQuiz.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: "/",
-      name: "home",
-      component: HomeView,
+      path: "/myquiz",
+      name: "myQuiz",
+      component: QuizList,
     },
     {
       path: "/create",
@@ -20,7 +20,7 @@ const router = createRouter({
     {
       path: "/read/:quizId",
       name: "read",
-      component: ReadQuiz,
+      component: QuizRead,
       props: true,
     },
     {

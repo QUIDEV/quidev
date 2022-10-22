@@ -10,10 +10,10 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
             <li class="nav-item">
-              <RouterLink class="nav-link active" aria-current="page" to="/">Quizzes</RouterLink>
+              <RouterLink class="nav-link active" aria-current="page" to="/myquiz">MyQuiz</RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink class="nav-link" to="/create">Create</RouterLink>
+              <RouterLink class="nav-link" to="/create">AddQuiz</RouterLink>
             </li>
             <li class="nav-item">
               <RouterLink class="nav-link" to="/login">login</RouterLink>
