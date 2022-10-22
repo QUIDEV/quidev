@@ -17,6 +17,7 @@ class QuidevApplication(
     private val memberService: MemberService,
     private val passwordEncoder: BcryptEncoder,
 ) : WebMvcConfigurer {
+
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(LoginInterceptor(objectMapper, memberService, passwordEncoder))
             .addPathPatterns("/api/**")

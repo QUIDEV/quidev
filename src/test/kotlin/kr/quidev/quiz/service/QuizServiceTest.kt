@@ -179,6 +179,53 @@ internal class QuizServiceTest {
     }
 
     @Test
+    fun findAllBySubmitterTest() {
+        // Given
+        val totalSize = 100L
+        for (i in 1..totalSize) {
+            quizService.createQuiz(
+                submitter = member!!, createDto = QuizCreateDto(
+                    description = "desc$i",
+                    answer = "something answer$i",
+                    skillId = java!!.id,
+                    explanation = "explanation$i",
+                    examples = arrayOf(
+                        "ex1",
+                        "ex2",
+                        "ex3"
+                    )
+                )
+            )
+            quizService.createQuiz(
+                submitter = member2!!, createDto = QuizCreateDto(
+                    description = "desc$i",
+                    answer = "something answer$i",
+                    skillId = java!!.id,
+                    explanation = "explanation$i",
+                    examples = arrayOf(
+                        "ex1",
+                        "ex2",
+                        "ex3"
+                    )
+                )
+            )
+        }
+
+        // When
+        val findAllPageSize20 = quizService.findAll(Pageable.ofSize(20), member!!)
+        val findAllPageSize10WithPage1 = quizService.findAll(Pageable.ofSize(10).withPage(1), member!!)
+
+
+        // Then
+        assertThat(findAllPageSize20).hasSize(20)
+        assertThat(findAllPageSize20.totalElements).isEqualTo(totalSize)
+        assertThat(findAllPageSize20.totalPages).isEqualTo((totalSize - 1) / 20 + 1)
+
+        assertThat(findAllPageSize10WithPage1).hasSize(10)
+        assertThat(findAllPageSize10WithPage1.content[0].description).isEqualTo("desc11")
+    }
+
+    @Test
     @DisplayName("Quiz Edit")
     fun editQuizTest() {
         // Given

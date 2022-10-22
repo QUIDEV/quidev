@@ -14,9 +14,9 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api": {
+      "/quidev": {
         target: "http://localhost:8080",
-        rewrite: (path) => path.replace(/^\/api/, ""),
+        rewrite: (path) => path.replace(/^\/quidev/, ""),
       },
     },
   }
