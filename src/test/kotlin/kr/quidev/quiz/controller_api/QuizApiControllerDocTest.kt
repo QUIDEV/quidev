@@ -119,6 +119,8 @@ class QuizApiControllerDocTest {
                         fieldWithPath("body.content[].examples").description("quiz examples"),
                         fieldWithPath("body.content[].skill").description("quiz skill name"),
                         fieldWithPath("body.content[].submitterName").description("quiz submitter name"),
+                        fieldWithPath("body.content[].updatedDate").description("quiz updatedDate"),
+                        fieldWithPath("body.content[].createdDate").description("quiz createdDate"),
                         fieldWithPath("body.pageNo").description("page number"),
                         fieldWithPath("body.pageSize").description("page size"),
                         fieldWithPath("body.totalElements").description("total elements"),
@@ -163,6 +165,8 @@ class QuizApiControllerDocTest {
                         fieldWithPath("body.examples").description("Quiz examples"),
                         fieldWithPath("body.skill").description("Skill field of the Quiz"),
                         fieldWithPath("body.submitterName").description("Quiz Submitter"),
+                        fieldWithPath("body.updatedDate").description("quiz updatedDate"),
+                        fieldWithPath("body.createdDate").description("quiz createdDate"),
                         fieldWithPath("error").description("Error Response"),
                     )
                 )
@@ -262,6 +266,8 @@ class QuizApiControllerDocTest {
                         fieldWithPath("body.examples").description("Quiz examples"),
                         fieldWithPath("body.skill").description("Skill field of the Quiz"),
                         fieldWithPath("body.submitterName").description("Quiz Submitter"),
+                        fieldWithPath("body.updatedDate").description("quiz updatedDate"),
+                        fieldWithPath("body.createdDate").description("quiz createdDate"),
                         fieldWithPath("error").description("Error Response"),
                     )
                 )
